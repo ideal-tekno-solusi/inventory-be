@@ -1,0 +1,11 @@
+package inventory
+
+import (
+	"app/api/inventory/operation"
+
+	"github.com/gin-gonic/gin"
+)
+
+type Service interface {
+	Inventory(ctx *gin.Context, params *operation.InventoryRequest)
+}
