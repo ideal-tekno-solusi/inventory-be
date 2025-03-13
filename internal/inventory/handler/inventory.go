@@ -2,32 +2,34 @@ package handler
 
 import (
 	"app/api/inventory/operation"
-	database "app/database/main"
+	"app/internal/inventory/entity"
+	"app/internal/inventory/repository"
 	"app/utils"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/sirupsen/logrus"
 )
 
 func (r *RestService) Inventory(ctx *gin.Context, params *operation.InventoryRequest) {
-	queries := database.New(r.dbr)
+	repo := repository.InitRepo(r.dbr, r.dbw)
+	InventoryService := repository.InventoryRepository(repo)
 
-	args := database.FetchInventoryItemsParams{
-		CategoryID: pgtype.Text{
-			String: fmt.Sprintf("%%%v%%", params.Category),
-			Valid:  true,
-		},
-		LocationID: pgtype.Text{
-			String: fmt.Sprintf("%%%v%%", params.LocationId),
-			Valid:  true,
-		},
+	var res entity.InventoryResponse
+
+	total, page, err := InventoryService.CountInventoryItem(ctx, params)
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to count inventory item with error: %v", err)
+		logrus.Error(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
 	}
 
-	items, err := queries.FetchInventoryItems(ctx, args)
+	items, err := InventoryService.FetchInventoryItems(ctx, params)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to fetch items with error: %v", err)
 		logrus.Warn(errorMessage)
@@ -37,5 +39,12 @@ func (r *RestService) Inventory(ctx *gin.Context, params *operation.InventoryReq
 		return
 	}
 
-	ctx.JSON(http.StatusOK, utils.GenerateResponseJson(true, items))
+	res = entity.InventoryResponse{
+		TotalData:   total,
+		CurrentPage: params.Page,
+		TotalPage:   page,
+		Items:       items,
+	}
+
+	ctx.JSON(http.StatusOK, utils.GenerateResponseJson(true, res))
 }

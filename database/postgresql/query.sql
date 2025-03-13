@@ -15,4 +15,16 @@ and
     items.location_id like $2
 order by 
     items.name
-desc;
+desc
+limit $3
+offset $4;
+
+-- name: CountInventoryItems :one
+select 
+    count(*)
+from 
+    items
+where
+    items.category_id like $1
+and
+    items.location_id like $2;

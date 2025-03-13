@@ -11,3 +11,7 @@ TODO:
 - [ ] create working endpoint to insert new global item
 - [ ] create working endpoint to insert new item
 - [ ] implement swagger
+
+# note
+after edit query in database/postgresql/query.sql, dont forget to run
+`sqlc generate`

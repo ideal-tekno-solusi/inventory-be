@@ -11,6 +11,29 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countInventoryItems = `-- name: CountInventoryItems :one
+select 
+    count(*)
+from 
+    items
+where
+    items.category_id like $1
+and
+    items.location_id like $2
+`
+
+type CountInventoryItemsParams struct {
+	CategoryID pgtype.Text
+	LocationID pgtype.Text
+}
+
+func (q *Queries) CountInventoryItems(ctx context.Context, arg CountInventoryItemsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countInventoryItems, arg.CategoryID, arg.LocationID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const fetchInventoryItems = `-- name: FetchInventoryItems :many
 select 
     items.id,
@@ -29,11 +52,15 @@ and
 order by 
     items.name
 desc
+limit $3
+offset $4
 `
 
 type FetchInventoryItemsParams struct {
 	CategoryID pgtype.Text
 	LocationID pgtype.Text
+	Limit      int32
+	Offset     int32
 }
 
 type FetchInventoryItemsRow struct {
@@ -47,7 +74,12 @@ type FetchInventoryItemsRow struct {
 }
 
 func (q *Queries) FetchInventoryItems(ctx context.Context, arg FetchInventoryItemsParams) ([]FetchInventoryItemsRow, error) {
-	rows, err := q.db.Query(ctx, fetchInventoryItems, arg.CategoryID, arg.LocationID)
+	rows, err := q.db.Query(ctx, fetchInventoryItems,
+		arg.CategoryID,
+		arg.LocationID,
+		arg.Limit,
+		arg.Offset,
+	)
 	if err != nil {
 		return nil, err
 	}

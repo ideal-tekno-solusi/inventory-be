@@ -2,6 +2,7 @@ package operation
 
 import (
 	"app/utils"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +12,8 @@ import (
 type InventoryRequest struct {
 	Category   string `form:"category"`
 	LocationId string `form:"locationId"`
+	Page       int    `form:"page"`
+	Limit      int    `form:"limit"`
 }
 
 func InventoryWrapper(handler func(ctx *gin.Context, params *InventoryRequest)) gin.HandlerFunc {
@@ -24,12 +27,14 @@ func InventoryWrapper(handler func(ctx *gin.Context, params *InventoryRequest)) 
 			return
 		}
 
-		// err = validateInventoryReq(params)
-		// if err != nil {
-		// 	utils.SendProblemDetailJson(ctx, http.StatusBadRequest, err.Error(), ctx.FullPath(), uuid.NewString())
+		params = defaultValueInventory(params)
 
-		// 	return
-		// }
+		err = validateInventoryReq(params)
+		if err != nil {
+			utils.SendProblemDetailJson(ctx, http.StatusBadRequest, err.Error(), ctx.FullPath(), uuid.NewString())
+
+			return
+		}
 
 		handler(ctx, &params)
 
@@ -37,14 +42,26 @@ func InventoryWrapper(handler func(ctx *gin.Context, params *InventoryRequest)) 
 	}
 }
 
-// func validateInventoryReq(params InventoryRequest) error {
-// 	if params.Category == "" {
-// 		return errors.New("category can't be empty")
-// 	}
+func validateInventoryReq(params InventoryRequest) error {
+	if params.Page < 0 {
+		return errors.New("page value can't lower than 1")
+	}
 
-// 	if params.LocationId == "" {
-// 		return errors.New("location id can't be empty")
-// 	}
+	if params.Limit < 0 {
+		return errors.New("limit value can't lower than 10")
+	}
 
-// 	return nil
-// }
+	return nil
+}
+
+func defaultValueInventory(params InventoryRequest) InventoryRequest {
+	if params.Page == 0 {
+		params.Page = 1
+	}
+
+	if params.Limit == 0 {
+		params.Limit = 10
+	}
+
+	return params
+}
