@@ -10,9 +10,9 @@ select
 from 
     items
 where
-    items.category_id like $1
+    items.category_id ilike $1
 and
-    items.location_id like $2
+    items.location_id ilike $2
 order by 
     items.name
 desc
@@ -25,6 +25,31 @@ select
 from 
     items
 where
-    items.category_id like $1
+    items.category_id ilike $1
 and
-    items.location_id like $2;
+    items.location_id ilike $2;
+
+-- name: CountCategory :one
+select
+    count(*)
+from
+    categories
+where
+    categories.name ilike $1;
+
+-- name: FetchCategory :many
+select
+    categories.id,
+    categories.name,
+    categories.description,
+    categories.insert_date,
+    categories.update_date
+from
+    categories
+where
+    categories.name ilike $1
+order by
+    categories.id
+desc
+limit $2
+offset $3;

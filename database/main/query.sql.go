@@ -11,15 +11,31 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countCategory = `-- name: CountCategory :one
+select
+    count(*)
+from
+    categories
+where
+    categories.name ilike $1
+`
+
+func (q *Queries) CountCategory(ctx context.Context, name string) (int64, error) {
+	row := q.db.QueryRow(ctx, countCategory, name)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countInventoryItems = `-- name: CountInventoryItems :one
 select 
     count(*)
 from 
     items
 where
-    items.category_id like $1
+    items.category_id ilike $1
 and
-    items.location_id like $2
+    items.location_id ilike $2
 `
 
 type CountInventoryItemsParams struct {
@@ -34,6 +50,64 @@ func (q *Queries) CountInventoryItems(ctx context.Context, arg CountInventoryIte
 	return count, err
 }
 
+const fetchCategory = `-- name: FetchCategory :many
+select
+    categories.id,
+    categories.name,
+    categories.description,
+    categories.insert_date,
+    categories.update_date
+from
+    categories
+where
+    categories.name ilike $1
+order by
+    categories.id
+desc
+limit $2
+offset $3
+`
+
+type FetchCategoryParams struct {
+	Name   string
+	Limit  int32
+	Offset int32
+}
+
+type FetchCategoryRow struct {
+	ID          string
+	Name        string
+	Description string
+	InsertDate  pgtype.Timestamp
+	UpdateDate  pgtype.Timestamp
+}
+
+func (q *Queries) FetchCategory(ctx context.Context, arg FetchCategoryParams) ([]FetchCategoryRow, error) {
+	rows, err := q.db.Query(ctx, fetchCategory, arg.Name, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FetchCategoryRow
+	for rows.Next() {
+		var i FetchCategoryRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.InsertDate,
+			&i.UpdateDate,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const fetchInventoryItems = `-- name: FetchInventoryItems :many
 select 
     items.id,
@@ -46,9 +120,9 @@ select
 from 
     items
 where
-    items.category_id like $1
+    items.category_id ilike $1
 and
-    items.location_id like $2
+    items.location_id ilike $2
 order by 
     items.name
 desc

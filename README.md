@@ -5,10 +5,22 @@ TODO:
 - [x] create working database connection
 - [x] create example 1 endpoint
 - [x] create working endpoint to show all item in inventory
-- [ ] create working endpoint to insert new category
-- [ ] create working endpoint to insert new location
-- [ ] create working endpoint to insert new position
-- [ ] create working endpoint to insert new global item
+- [x] create working endpoint to show category
+- [ ] create working endpoint to insert category
+- [ ] create working endpoint to update category
+- [ ] create working endpoint to delete category
+- [ ] create working endpoint to show location
+- [ ] create working endpoint to insert location
+- [ ] create working endpoint to update location
+- [ ] create working endpoint to delete location
+- [ ] create working endpoint to show position
+- [ ] create working endpoint to insert position
+- [ ] create working endpoint to update position
+- [ ] create working endpoint to delete position
+- [ ] create working endpoint to show global item
+- [ ] create working endpoint to insert global item
+- [ ] create working endpoint to update global item
+- [ ] create working endpoint to delete global item
 - [ ] create working endpoint to insert new item
 - [ ] implement swagger
 
