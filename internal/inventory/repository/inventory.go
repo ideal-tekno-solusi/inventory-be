@@ -11,7 +11,7 @@ import (
 )
 
 type Inventory interface {
-	CountInventoryItem(ctx context.Context, params *operation.InventoryRequest) (int, int, error)
+	CountInventoryItems(ctx context.Context, params *operation.InventoryRequest) (int, int, error)
 	FetchInventoryItems(ctx context.Context, params *operation.InventoryRequest) (*[]database.FetchInventoryItemsRow, error)
 }
 
@@ -25,7 +25,7 @@ func InventoryRepository(inventory Inventory) *InventoryService {
 	}
 }
 
-func (r *Repository) CountInventoryItem(ctx context.Context, params *operation.InventoryRequest) (int, int, error) {
+func (r *Repository) CountInventoryItems(ctx context.Context, params *operation.InventoryRequest) (int, int, error) {
 	args := database.CountInventoryItemsParams{
 		CategoryID: pgtype.Text{
 			String: fmt.Sprintf("%%%v%%", params.Category),

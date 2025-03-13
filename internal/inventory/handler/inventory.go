@@ -15,11 +15,11 @@ import (
 
 func (r *RestService) Inventory(ctx *gin.Context, params *operation.InventoryRequest) {
 	repo := repository.InitRepo(r.dbr, r.dbw)
-	InventoryService := repository.InventoryRepository(repo)
+	inventoryService := repository.InventoryRepository(repo)
 
 	var res entity.InventoryResponse
 
-	total, page, err := InventoryService.CountInventoryItem(ctx, params)
+	total, page, err := inventoryService.CountInventoryItems(ctx, params)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to count inventory item with error: %v", err)
 		logrus.Error(errorMessage)
@@ -29,7 +29,7 @@ func (r *RestService) Inventory(ctx *gin.Context, params *operation.InventoryReq
 		return
 	}
 
-	items, err := InventoryService.FetchInventoryItems(ctx, params)
+	items, err := inventoryService.FetchInventoryItems(ctx, params)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to fetch items with error: %v", err)
 		logrus.Warn(errorMessage)
