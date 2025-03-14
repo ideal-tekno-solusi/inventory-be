@@ -62,6 +62,40 @@ func (q *Queries) CountInventoryItems(ctx context.Context, arg CountInventoryIte
 	return count, err
 }
 
+const createCategory = `-- name: CreateCategory :exec
+insert into categories
+(
+    id,
+    name,
+    description,
+    insert_date
+)
+values
+(
+    $1,
+    $2,
+    $3,
+    $4
+)
+`
+
+type CreateCategoryParams struct {
+	ID          string
+	Name        string
+	Description string
+	InsertDate  pgtype.Timestamp
+}
+
+func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) error {
+	_, err := q.db.Exec(ctx, createCategory,
+		arg.ID,
+		arg.Name,
+		arg.Description,
+		arg.InsertDate,
+	)
+	return err
+}
+
 const fetchCategory = `-- name: FetchCategory :many
 select
     categories.id,

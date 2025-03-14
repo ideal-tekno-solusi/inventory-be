@@ -9,4 +9,5 @@ import (
 type Service interface {
 	Inventory(ctx *gin.Context, params *operation.InventoryRequest)
 	Category(ctx *gin.Context, params *operation.CategoryRequest)
+	CategoryCreate(ctx *gin.Context, params *operation.CategoryCreateRequest)
 }

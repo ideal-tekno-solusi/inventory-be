@@ -6,11 +6,15 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Category interface {
 	CountCategory(ctx context.Context, params *operation.CategoryRequest) (int, int, error)
 	FetchCategory(ctx context.Context, params *operation.CategoryRequest) (*[]database.FetchCategoryRow, error)
+	CreateCategory(ctx context.Context, params *operation.CategoryCreateRequest) error
 }
 
 type CategoryService struct {
@@ -49,4 +53,23 @@ func (r *Repository) FetchCategory(ctx context.Context, params *operation.Catego
 	}
 
 	return &categories, nil
+}
+
+func (r *Repository) CreateCategory(ctx context.Context, params *operation.CategoryCreateRequest) error {
+	args := database.CreateCategoryParams{
+		ID:          params.Id,
+		Name:        params.Name,
+		Description: params.Description,
+		InsertDate: pgtype.Timestamp{
+			Time:  time.Now(),
+			Valid: true,
+		},
+	}
+
+	err := r.write.CreateCategory(ctx, args)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

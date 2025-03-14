@@ -48,3 +48,20 @@ func (r *RestService) Category(ctx *gin.Context, params *operation.CategoryReque
 
 	ctx.JSON(http.StatusOK, utils.GenerateResponseJson(true, res))
 }
+
+func (r *RestService) CategoryCreate(ctx *gin.Context, params *operation.CategoryCreateRequest) {
+	repo := repository.InitRepo(r.dbr, r.dbw)
+	categoryService := repository.CategoryRepository(repo)
+
+	err := categoryService.CreateCategory(ctx, params)
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to create new category with error: %v", err)
+		logrus.Warn(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
+	ctx.Status(http.StatusCreated)
+}
