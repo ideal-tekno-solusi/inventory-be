@@ -7,7 +7,7 @@ create table if not exists categories (
 	delete_date timestamp
 );
 
-create table if not exists locations (
+create table if not exists branches (
 	id varchar(50) primary key,
 	name varchar(255) not null,
 	address text not null,
@@ -17,17 +17,9 @@ create table if not exists locations (
 	delete_date timestamp
 );
 
-create table if not exists position (
-	id varchar(50) primary key,
-	location_id varchar(50) references locations(id),
-	insert_date timestamp not null,
-	update_date timestamp,
-	delete_date timestamp
-);
-
-create table if not exists global_items (
-	id varchar(50) primary key,
-	name varchar(255) not null,
+create table if not exists positions (
+	code varchar(50) primary key,
+	branch_id varchar(50) references branches(id),
 	insert_date timestamp not null,
 	update_date timestamp,
 	delete_date timestamp
@@ -35,12 +27,19 @@ create table if not exists global_items (
 
 create table if not exists items (
 	id varchar(50) primary key,
-	global_item_id varchar(50) references global_items(id),
 	category_id varchar(50) references categories(id),
 	name varchar(255) not null,
+	insert_date timestamp not null,
+	update_date timestamp,
+	delete_date timestamp
+);
+
+create table if not exists branch_items (
+	id varchar(50) primary key,
+	item_id varchar(50) references items(id),
+	branch_id varchar(50) references branches(id),
+	position_code varchar(50) references positions(code),
 	qty int not null,
-	location_id varchar(50) references locations(id),
-	position_id varchar(50) references position(id),
 	insert_date timestamp not null,
 	update_date timestamp,
 	delete_date timestamp

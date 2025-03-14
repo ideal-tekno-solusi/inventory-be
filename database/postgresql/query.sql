@@ -1,18 +1,29 @@
 -- name: FetchInventoryItems :many
 select 
-    items.id,
-    items.name,
-    items.qty,
-    items.global_item_id,
-    items.category_id,
-    items.location_id,
-    items.position_id
+    branch_items.id,
+    items.name as item_name,
+    branch_items.qty,
+    categories.name as category_name,
+    branches.name as branch_name,
+    branch_items.position_code
 from 
+    branch_items
+join
     items
+on
+    branch_items.item_id = items.id
+join
+    categories
+on
+    items.category_id = categories.id
+join
+    branches
+on
+    branch_items.branch_id = branches.id
 where
-    items.category_id ilike $1
+    categories.id ilike $1
 and
-    items.location_id ilike $2
+    branches.id ilike $2
 order by 
     items.name
 desc
@@ -23,11 +34,23 @@ offset $4;
 select 
     count(*)
 from 
+    branch_items
+join
     items
+on
+    branch_items.item_id = items.id
+join
+    categories
+on
+    items.category_id = categories.id
+join
+    branches
+on
+    branch_items.branch_id = branches.id
 where
-    items.category_id ilike $1
+    categories.id ilike $1
 and
-    items.location_id ilike $2;
+    branches.id ilike $2;
 
 -- name: CountCategory :one
 select

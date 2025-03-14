@@ -10,10 +10,10 @@ import (
 )
 
 type InventoryRequest struct {
-	Category   string `form:"category"`
-	LocationId string `form:"locationId"`
-	Page       int    `form:"page"`
-	Limit      int    `form:"limit"`
+	Category string `form:"category"`
+	BranchId string `form:"branchId"`
+	Page     int    `form:"page"`
+	Limit    int    `form:"limit"`
 }
 
 func InventoryWrapper(handler func(ctx *gin.Context, params *InventoryRequest)) gin.HandlerFunc {

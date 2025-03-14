@@ -31,20 +31,32 @@ const countInventoryItems = `-- name: CountInventoryItems :one
 select 
     count(*)
 from 
+    branch_items
+join
     items
+on
+    branch_items.item_id = items.id
+join
+    categories
+on
+    items.category_id = categories.id
+join
+    branches
+on
+    branch_items.branch_id = branches.id
 where
-    items.category_id ilike $1
+    categories.id ilike $1
 and
-    items.location_id ilike $2
+    branches.id ilike $2
 `
 
 type CountInventoryItemsParams struct {
-	CategoryID pgtype.Text
-	LocationID pgtype.Text
+	ID   string
+	ID_2 string
 }
 
 func (q *Queries) CountInventoryItems(ctx context.Context, arg CountInventoryItemsParams) (int64, error) {
-	row := q.db.QueryRow(ctx, countInventoryItems, arg.CategoryID, arg.LocationID)
+	row := q.db.QueryRow(ctx, countInventoryItems, arg.ID, arg.ID_2)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -110,19 +122,30 @@ func (q *Queries) FetchCategory(ctx context.Context, arg FetchCategoryParams) ([
 
 const fetchInventoryItems = `-- name: FetchInventoryItems :many
 select 
-    items.id,
-    items.name,
-    items.qty,
-    items.global_item_id,
-    items.category_id,
-    items.location_id,
-    items.position_id
+    branch_items.id,
+    items.name as item_name,
+    branch_items.qty,
+    categories.name as category_name,
+    branches.name as branch_name,
+    branch_items.position_code
 from 
+    branch_items
+join
     items
+on
+    branch_items.item_id = items.id
+join
+    categories
+on
+    items.category_id = categories.id
+join
+    branches
+on
+    branch_items.branch_id = branches.id
 where
-    items.category_id ilike $1
+    categories.id ilike $1
 and
-    items.location_id ilike $2
+    branches.id ilike $2
 order by 
     items.name
 desc
@@ -131,26 +154,25 @@ offset $4
 `
 
 type FetchInventoryItemsParams struct {
-	CategoryID pgtype.Text
-	LocationID pgtype.Text
-	Limit      int32
-	Offset     int32
+	ID     string
+	ID_2   string
+	Limit  int32
+	Offset int32
 }
 
 type FetchInventoryItemsRow struct {
 	ID           string
-	Name         string
+	ItemName     string
 	Qty          int32
-	GlobalItemID pgtype.Text
-	CategoryID   pgtype.Text
-	LocationID   pgtype.Text
-	PositionID   pgtype.Text
+	CategoryName string
+	BranchName   string
+	PositionCode pgtype.Text
 }
 
 func (q *Queries) FetchInventoryItems(ctx context.Context, arg FetchInventoryItemsParams) ([]FetchInventoryItemsRow, error) {
 	rows, err := q.db.Query(ctx, fetchInventoryItems,
-		arg.CategoryID,
-		arg.LocationID,
+		arg.ID,
+		arg.ID_2,
 		arg.Limit,
 		arg.Offset,
 	)
@@ -163,12 +185,11 @@ func (q *Queries) FetchInventoryItems(ctx context.Context, arg FetchInventoryIte
 		var i FetchInventoryItemsRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.Name,
+			&i.ItemName,
 			&i.Qty,
-			&i.GlobalItemID,
-			&i.CategoryID,
-			&i.LocationID,
-			&i.PositionID,
+			&i.CategoryName,
+			&i.BranchName,
+			&i.PositionCode,
 		); err != nil {
 			return nil, err
 		}

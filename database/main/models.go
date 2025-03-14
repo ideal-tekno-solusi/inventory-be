@@ -8,37 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Category struct {
-	ID          string
-	Name        string
-	Description string
-	InsertDate  pgtype.Timestamp
-	UpdateDate  pgtype.Timestamp
-	DeleteDate  pgtype.Timestamp
-}
-
-type GlobalItem struct {
-	ID         string
-	Name       string
-	InsertDate pgtype.Timestamp
-	UpdateDate pgtype.Timestamp
-	DeleteDate pgtype.Timestamp
-}
-
-type Item struct {
-	ID           string
-	GlobalItemID pgtype.Text
-	CategoryID   pgtype.Text
-	Name         string
-	Qty          int32
-	LocationID   pgtype.Text
-	PositionID   pgtype.Text
-	InsertDate   pgtype.Timestamp
-	UpdateDate   pgtype.Timestamp
-	DeleteDate   pgtype.Timestamp
-}
-
-type Location struct {
+type Branch struct {
 	ID          string
 	Name        string
 	Address     string
@@ -48,9 +18,38 @@ type Location struct {
 	DeleteDate  pgtype.Timestamp
 }
 
-type Position struct {
+type BranchItem struct {
+	ID           string
+	ItemID       pgtype.Text
+	BranchID     pgtype.Text
+	PositionCode pgtype.Text
+	Qty          int32
+	InsertDate   pgtype.Timestamp
+	UpdateDate   pgtype.Timestamp
+	DeleteDate   pgtype.Timestamp
+}
+
+type Category struct {
+	ID          string
+	Name        string
+	Description string
+	InsertDate  pgtype.Timestamp
+	UpdateDate  pgtype.Timestamp
+	DeleteDate  pgtype.Timestamp
+}
+
+type Item struct {
 	ID         string
-	LocationID pgtype.Text
+	CategoryID pgtype.Text
+	Name       string
+	InsertDate pgtype.Timestamp
+	UpdateDate pgtype.Timestamp
+	DeleteDate pgtype.Timestamp
+}
+
+type Position struct {
+	Code       string
+	BranchID   pgtype.Text
 	InsertDate pgtype.Timestamp
 	UpdateDate pgtype.Timestamp
 	DeleteDate pgtype.Timestamp

@@ -6,8 +6,6 @@ import (
 	"context"
 	"fmt"
 	"math"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Inventory interface {
@@ -27,14 +25,8 @@ func InventoryRepository(inventory Inventory) *InventoryService {
 
 func (r *Repository) CountInventoryItems(ctx context.Context, params *operation.InventoryRequest) (int, int, error) {
 	args := database.CountInventoryItemsParams{
-		CategoryID: pgtype.Text{
-			String: fmt.Sprintf("%%%v%%", params.Category),
-			Valid:  true,
-		},
-		LocationID: pgtype.Text{
-			String: fmt.Sprintf("%%%v%%", params.LocationId),
-			Valid:  true,
-		},
+		ID:   fmt.Sprintf("%%%v%%", params.Category),
+		ID_2: fmt.Sprintf("%%%v%%", params.BranchId),
 	}
 
 	total, err := r.read.CountInventoryItems(ctx, args)
@@ -49,14 +41,8 @@ func (r *Repository) CountInventoryItems(ctx context.Context, params *operation.
 
 func (r *Repository) FetchInventoryItems(ctx context.Context, params *operation.InventoryRequest) (*[]database.FetchInventoryItemsRow, error) {
 	args := database.FetchInventoryItemsParams{
-		CategoryID: pgtype.Text{
-			String: fmt.Sprintf("%%%v%%", params.Category),
-			Valid:  true,
-		},
-		LocationID: pgtype.Text{
-			String: fmt.Sprintf("%%%v%%", params.LocationId),
-			Valid:  true,
-		},
+		ID:     fmt.Sprintf("%%%v%%", params.Category),
+		ID_2:   fmt.Sprintf("%%%v%%", params.BranchId),
 		Limit:  int32(params.Limit),
 		Offset: (int32(params.Page) - 1) * int32(params.Limit),
 	}

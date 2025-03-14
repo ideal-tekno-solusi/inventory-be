@@ -9,7 +9,7 @@ create table if not exists inventory.categories (
 	delete_date timestamp
 );
 
-create table if not exists inventory.locations (
+create table if not exists inventory.branches (
 	id varchar(50) primary key,
 	name varchar(255) not null,
 	address text not null,
@@ -19,17 +19,9 @@ create table if not exists inventory.locations (
 	delete_date timestamp
 );
 
-create table if not exists inventory.position (
-	id varchar(50) primary key,
-	location_id varchar(50) references inventory.locations(id),
-	insert_date timestamp not null,
-	update_date timestamp,
-	delete_date timestamp
-);
-
-create table if not exists inventory.global_items (
-	id varchar(50) primary key,
-	name varchar(255) not null,
+create table if not exists inventory.positions (
+	code varchar(50) primary key,
+	branch_id varchar(50) references inventory.branches(id),
 	insert_date timestamp not null,
 	update_date timestamp,
 	delete_date timestamp
@@ -37,12 +29,19 @@ create table if not exists inventory.global_items (
 
 create table if not exists inventory.items (
 	id varchar(50) primary key,
-	global_item_id varchar(50) references inventory.global_items(id),
 	category_id varchar(50) references inventory.categories(id),
 	name varchar(255) not null,
+	insert_date timestamp not null,
+	update_date timestamp,
+	delete_date timestamp
+);
+
+create table if not exists inventory.branch_items (
+	id varchar(50) primary key,
+	item_id varchar(50) references inventory.items(id),
+	branch_id varchar(50) references inventory.branches(id),
+	position_code varchar(50) references inventory.positions(code),
 	qty int not null,
-	location_id varchar(50) references inventory.locations(id),
-	position_id varchar(50) references inventory.position(id),
 	insert_date timestamp not null,
 	update_date timestamp,
 	delete_date timestamp
@@ -81,7 +80,7 @@ values
 		now()
 	);
 	
-insert into inventory.locations
+insert into inventory.branches
 	(
 		id,
 		name,
@@ -105,10 +104,10 @@ values
 		now()
 	);
 
-insert into inventory.position
+insert into inventory.positions
 	(
-		id,
-		location_id,
+		code,
+		branch_id,
 		insert_date
 	)
 values
@@ -133,56 +132,58 @@ values
 		now()
 	);
 	
-insert into inventory.global_items
+insert into inventory.items
 	(
 		id,
+		category_id,
 		name,
 		insert_date
 	)
 values
 	(
 		'SMS001',
+		'SMS',
 		'back casing samsung A5x',
 		now()
 	),
 	(
 		'SMS002',
+		'SMS',
 		'main board samsung A5x',
 		now()
 	),
 	(
 		'SMS003',
+		'SMS',
 		'daughter board samsung A5x',
 		now()
 	),
 	(
 		'OTH001',
+		'OTH',
 		'camera 25mp',
 		now()
 	),
 	(
 		'OTH002',
+		'OTH',
 		'type c connector',
 		now()
 	);
 
-insert into inventory.items
+insert into inventory.branch_items
 	(
 		id,
-		global_item_id,
-		category_id,
-		name,
+		item_id,
 		qty,
-		location_id,
-		position_id,
+		branch_id,
+		position_code,
 		insert_date
 	)
 values
 	(
 		'BSDSMS001',
 		'SMS001',
-		'SMS',
-		'Back casing for samsung A5x',
 		1000,
 		'BSD',
 		'BSDA1',
@@ -191,8 +192,6 @@ values
 	(
 		'BSDSMS002',
 		'SMS002',
-		'SMS',
-		'Main board for samsung A5x',
 		1000,
 		'BSD',
 		'BSDA1',
@@ -201,8 +200,6 @@ values
 	(
 		'BSDSMS003',
 		'SMS003',
-		'SMS',
-		'Daughter board for samsung A5x',
 		1000,
 		'BSD',
 		'BSDA1',
@@ -211,8 +208,6 @@ values
 	(
 		'BATSMS001',
 		'SMS001',
-		'SMS',
-		'Back casing for samsung A5x',
 		1000,
 		'BSD',
 		'BSDA1',
@@ -221,8 +216,6 @@ values
 	(
 		'BATOTH001',
 		'OTH001',
-		'OTH',
-		'Camera 25mp',
 		1000,
 		'BAT',
 		'BATA1',
