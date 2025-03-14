@@ -80,7 +80,6 @@ offset $3;
 -- name: CreateCategory :exec
 insert into categories
 (
-    id,
     name,
     description,
     insert_date
@@ -89,6 +88,5 @@ values
 (
     $1,
     $2,
-    $3,
-    $4
+    $3
 );

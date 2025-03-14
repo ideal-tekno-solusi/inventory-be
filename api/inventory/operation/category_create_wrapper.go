@@ -10,7 +10,6 @@ import (
 )
 
 type CategoryCreateRequest struct {
-	Id          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
@@ -40,14 +39,6 @@ func CategoryCreateWrapper(handler func(ctx *gin.Context, params *CategoryCreate
 }
 
 func validateCategoryCreateReq(params CategoryCreateRequest) error {
-	if params.Id == "" {
-		return errors.New("id can't be empty")
-	}
-
-	if len(params.Id) > 50 {
-		return errors.New("id max length is 50 character")
-	}
-
 	if params.Name == "" {
 		return errors.New("name can't be empty")
 	}

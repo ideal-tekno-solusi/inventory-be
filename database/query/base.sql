@@ -1,7 +1,13 @@
 create schema if not exists inventory;
 
+create sequence inventory.categories_id_seq
+increment 1
+minvalue 1
+maxvalue 9999999999999999
+start 1;
+
 create table if not exists inventory.categories (
-	id varchar(50) primary key,
+	id varchar(20) primary key check (id ~ '^CAT[0-9]+$') default 'CAT' || nextval('inventory.categories_id_seq'),
 	name varchar(255) not null,
 	description text not null,
 	insert_date timestamp not null,
@@ -9,8 +15,14 @@ create table if not exists inventory.categories (
 	delete_date timestamp
 );
 
+create sequence inventory.branches_id_seq
+increment 1
+minvalue 1
+maxvalue 9999999999999999
+start 1;
+
 create table if not exists inventory.branches (
-	id varchar(50) primary key,
+	id varchar(20) primary key check (id ~ '^BRA[0-9]+$') default 'BRA' || nextval('inventory.branches_id_seq'),
 	name varchar(255) not null,
 	address text not null,
 	description text,
@@ -21,25 +33,37 @@ create table if not exists inventory.branches (
 
 create table if not exists inventory.positions (
 	code varchar(50) primary key,
-	branch_id varchar(50) references inventory.branches(id),
+	branch_id varchar(20) references inventory.branches(id),
 	insert_date timestamp not null,
 	update_date timestamp,
 	delete_date timestamp
 );
 
+create sequence inventory.items_id_seq
+increment 1
+minvalue 1
+maxvalue 9999999999999999
+start 1;
+
 create table if not exists inventory.items (
-	id varchar(50) primary key,
-	category_id varchar(50) references inventory.categories(id),
+	id varchar(20) primary key check (id ~ '^ITE[0-9]+$') default 'ITE' || nextval('inventory.items_id_seq'),
+	category_id varchar(20) references inventory.categories(id),
 	name varchar(255) not null,
 	insert_date timestamp not null,
 	update_date timestamp,
 	delete_date timestamp
 );
 
+create sequence inventory.branch_items_id_seq
+increment 1
+minvalue 1
+maxvalue 9999999999999999
+start 1;
+
 create table if not exists inventory.branch_items (
-	id varchar(50) primary key,
-	item_id varchar(50) references inventory.items(id),
-	branch_id varchar(50) references inventory.branches(id),
+	id varchar(20) primary key check (id ~ '^BIT[0-9]+$') default 'BIT' || nextval('inventory.branch_items_id_seq'),
+	item_id varchar(20) references inventory.items(id),
+	branch_id varchar(20) references inventory.branches(id),
 	position_code varchar(50) references inventory.positions(code),
 	qty int not null,
 	insert_date timestamp not null,
@@ -49,32 +73,28 @@ create table if not exists inventory.branch_items (
 
 insert into inventory.categories
 	(
-		id,
 		name,
 		description,
 		insert_date
 	)
 values 
 	(
-		'SMS',
+		
 		'SAMSUNG',
 		'categories for all samsung phone component',
 		now()
 	),
 	(
-		'VIV',
 		'VIVO',
 		'categories for all vivo phone component',
 		now()
 	),
 	(
-		'OTH',
 		'OTHER',
 		'categories for all global phone component that can be used for many phone',
 		now()
 	),
 	(
-		'OPP',
 		'OPPO',
 		'categories for all oppo phone component',
 		now()
@@ -82,7 +102,6 @@ values
 	
 insert into inventory.branches
 	(
-		id,
 		name,
 		address,
 		description,
@@ -90,14 +109,12 @@ insert into inventory.branches
 	)
 values
 	(
-		'BSD',
 		'Bumi Serpong Damai',
 		'tanggerang selatan',
 		'branch inventory',
 		now()
 	),
 	(
-		'BAT',
 		'Batam',
 		'riau',
 		'main inventory for indonesian branch',
@@ -113,67 +130,60 @@ insert into inventory.positions
 values
 	(
 		'BSDA1',
-		'BSD',
+		'BRA1',
 		now()
 	),
 	(
 		'BSDA2',
-		'BSD',
+		'BRA1',
 		now()
 	),
 	(
 		'BATA1',
-		'BAT',
+		'BRA2',
 		now()
 	),
 	(
 		'BATA2',
-		'BAT',
+		'BRA2',
 		now()
 	);
 	
 insert into inventory.items
 	(
-		id,
 		category_id,
 		name,
 		insert_date
 	)
 values
 	(
-		'SMS001',
-		'SMS',
+		'CAT1',
 		'back casing samsung A5x',
 		now()
 	),
 	(
-		'SMS002',
-		'SMS',
+		'CAT1',
 		'main board samsung A5x',
 		now()
 	),
 	(
-		'SMS003',
-		'SMS',
+		'CAT1',
 		'daughter board samsung A5x',
 		now()
 	),
 	(
-		'OTH001',
-		'OTH',
+		'CAT3',
 		'camera 25mp',
 		now()
 	),
 	(
-		'OTH002',
-		'OTH',
+		'CAT3',
 		'type c connector',
 		now()
 	);
 
 insert into inventory.branch_items
 	(
-		id,
 		item_id,
 		qty,
 		branch_id,
@@ -182,42 +192,37 @@ insert into inventory.branch_items
 	)
 values
 	(
-		'BSDSMS001',
-		'SMS001',
+		'ITE1',
 		1000,
-		'BSD',
+		'BRA1',
 		'BSDA1',
 		now()
 	),
 	(
-		'BSDSMS002',
-		'SMS002',
+		'ITE2',
 		1000,
-		'BSD',
+		'BRA1',
 		'BSDA1',
 		now()
 	),
 	(
-		'BSDSMS003',
-		'SMS003',
+		'ITE3',
 		1000,
-		'BSD',
+		'BRA1',
 		'BSDA1',
 		now()
 	),
 	(
-		'BATSMS001',
-		'SMS001',
+		'ITE1',
 		1000,
-		'BSD',
-		'BSDA1',
-		now()
-	),
-	(
-		'BATOTH001',
-		'OTH001',
-		1000,
-		'BAT',
+		'BRA2',
 		'BATA1',
+		now()
+	),
+	(
+		'ITE5',
+		1000,
+		'BRA2',
+		'BATA2',
 		now()
 	);

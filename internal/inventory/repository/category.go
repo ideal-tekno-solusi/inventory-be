@@ -57,7 +57,6 @@ func (r *Repository) FetchCategory(ctx context.Context, params *operation.Catego
 
 func (r *Repository) CreateCategory(ctx context.Context, params *operation.CategoryCreateRequest) error {
 	args := database.CreateCategoryParams{
-		ID:          params.Id,
 		Name:        params.Name,
 		Description: params.Description,
 		InsertDate: pgtype.Timestamp{
