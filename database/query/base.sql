@@ -31,8 +31,15 @@ create table if not exists inventory.branches (
 	delete_date timestamp
 );
 
+create sequence inventory.positions_id_seq
+increment 1
+minvalue 1
+maxvalue 9999999999999999
+start 1;
+
 create table if not exists inventory.positions (
-	code varchar(50) primary key,
+	id varchar(20) primary key check (id ~ '^POS[0-9]+$') default 'POS' || nextval('inventory.positions_id_seq'),
+	code varchar(50),
 	branch_id varchar(20) references inventory.branches(id),
 	insert_date timestamp not null,
 	update_date timestamp,
@@ -64,7 +71,7 @@ create table if not exists inventory.branch_items (
 	id varchar(20) primary key check (id ~ '^BIT[0-9]+$') default 'BIT' || nextval('inventory.branch_items_id_seq'),
 	item_id varchar(20) references inventory.items(id),
 	branch_id varchar(20) references inventory.branches(id),
-	position_code varchar(50) references inventory.positions(code),
+	position_id varchar(20) references inventory.positions(id),
 	qty int not null,
 	insert_date timestamp not null,
 	update_date timestamp,
@@ -129,22 +136,22 @@ insert into inventory.positions
 	)
 values
 	(
-		'BSDA1',
+		'A1',
 		'BRA1',
 		now()
 	),
 	(
-		'BSDA2',
+		'A2',
 		'BRA1',
 		now()
 	),
 	(
-		'BATA1',
+		'A1',
 		'BRA2',
 		now()
 	),
 	(
-		'BATA2',
+		'A2',
 		'BRA2',
 		now()
 	);
@@ -187,7 +194,7 @@ insert into inventory.branch_items
 		item_id,
 		qty,
 		branch_id,
-		position_code,
+		position_id,
 		insert_date
 	)
 values
@@ -195,34 +202,34 @@ values
 		'ITE1',
 		1000,
 		'BRA1',
-		'BSDA1',
+		'POS1',
 		now()
 	),
 	(
 		'ITE2',
 		1000,
 		'BRA1',
-		'BSDA1',
+		'POS1',
 		now()
 	),
 	(
 		'ITE3',
 		1000,
 		'BRA1',
-		'BSDA1',
+		'POS1',
 		now()
 	),
 	(
 		'ITE1',
 		1000,
 		'BRA2',
-		'BATA1',
+		'POS3',
 		now()
 	),
 	(
 		'ITE5',
 		1000,
 		'BRA2',
-		'BATA2',
+		'POS3',
 		now()
 	);

@@ -44,6 +44,10 @@ join
     branches
 on
     branch_items.branch_id = branches.id
+join
+    positions
+on
+    branch_items.position_id = positions.id
 where
     categories.id ilike $1
 and
@@ -153,7 +157,7 @@ select
     branch_items.qty,
     categories.name as category_name,
     branches.name as branch_name,
-    branch_items.position_code
+    positions.code
 from 
     branch_items
 join
@@ -168,6 +172,10 @@ join
     branches
 on
     branch_items.branch_id = branches.id
+join
+    positions
+on
+    branch_items.position_id = positions.id
 where
     categories.id ilike $1
 and
@@ -192,7 +200,7 @@ type FetchInventoryItemsRow struct {
 	Qty          int32
 	CategoryName string
 	BranchName   string
-	PositionCode pgtype.Text
+	Code         pgtype.Text
 }
 
 func (q *Queries) FetchInventoryItems(ctx context.Context, arg FetchInventoryItemsParams) ([]FetchInventoryItemsRow, error) {
@@ -215,7 +223,7 @@ func (q *Queries) FetchInventoryItems(ctx context.Context, arg FetchInventoryIte
 			&i.Qty,
 			&i.CategoryName,
 			&i.BranchName,
-			&i.PositionCode,
+			&i.Code,
 		); err != nil {
 			return nil, err
 		}

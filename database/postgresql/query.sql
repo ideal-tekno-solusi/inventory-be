@@ -5,7 +5,7 @@ select
     branch_items.qty,
     categories.name as category_name,
     branches.name as branch_name,
-    branch_items.position_code
+    positions.code
 from 
     branch_items
 join
@@ -20,6 +20,10 @@ join
     branches
 on
     branch_items.branch_id = branches.id
+join
+    positions
+on
+    branch_items.position_id = positions.id
 where
     categories.id ilike $1
 and
@@ -47,6 +51,10 @@ join
     branches
 on
     branch_items.branch_id = branches.id
+join
+    positions
+on
+    branch_items.position_id = positions.id
 where
     categories.id ilike $1
 and

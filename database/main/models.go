@@ -19,14 +19,14 @@ type Branch struct {
 }
 
 type BranchItem struct {
-	ID           string
-	ItemID       pgtype.Text
-	BranchID     pgtype.Text
-	PositionCode pgtype.Text
-	Qty          int32
-	InsertDate   pgtype.Timestamp
-	UpdateDate   pgtype.Timestamp
-	DeleteDate   pgtype.Timestamp
+	ID         string
+	ItemID     pgtype.Text
+	BranchID   pgtype.Text
+	PositionID pgtype.Text
+	Qty        int32
+	InsertDate pgtype.Timestamp
+	UpdateDate pgtype.Timestamp
+	DeleteDate pgtype.Timestamp
 }
 
 type Category struct {
@@ -48,7 +48,8 @@ type Item struct {
 }
 
 type Position struct {
-	Code       string
+	ID         string
+	Code       pgtype.Text
 	BranchID   pgtype.Text
 	InsertDate pgtype.Timestamp
 	UpdateDate pgtype.Timestamp

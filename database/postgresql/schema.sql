@@ -18,7 +18,8 @@ create table if not exists branches (
 );
 
 create table if not exists positions (
-	code varchar(50) primary key,
+	id varchar(20) primary key check (id ~ '^POS[0-9]+$') default 'POS' || nextval('inventory.positions_id_seq'),
+	code varchar(50),
 	branch_id varchar(20) references branches(id),
 	insert_date timestamp not null,
 	update_date timestamp,
@@ -38,7 +39,7 @@ create table if not exists branch_items (
 	id varchar(20) primary key check (id ~ '^BIT[0-9]+$') default 'BIT' || nextval('inventory.branch_items_id_seq'),
 	item_id varchar(20) references items(id),
 	branch_id varchar(20) references branches(id),
-	position_code varchar(50) references positions(code),
+	position_id varchar(20) references positions(id),
 	qty int not null,
 	insert_date timestamp not null,
 	update_date timestamp,
