@@ -8,7 +8,7 @@ TODO:
 - [x] create working endpoint to show category
 - [x] create working endpoint to insert category
 - [x] create working endpoint to update category
-- [ ] create working endpoint to delete category
+- [x] create working endpoint to delete category
 - [ ] create working endpoint to show location
 - [ ] create working endpoint to insert location
 - [ ] create working endpoint to update location
