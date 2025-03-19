@@ -65,3 +65,20 @@ func (r *RestService) CategoryCreate(ctx *gin.Context, params *operation.Categor
 
 	ctx.Status(http.StatusCreated)
 }
+
+func (r *RestService) CategoryUpdate(ctx *gin.Context, params *operation.CategoryUpdateRequest) {
+	repo := repository.InitRepo(r.dbr, r.dbw)
+	categoryService := repository.CategoryRepository(repo)
+
+	err := categoryService.UpdateCategory(ctx, params)
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to update category with error: %v", err)
+		logrus.Warn(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}

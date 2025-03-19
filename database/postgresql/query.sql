@@ -28,6 +28,8 @@ where
     categories.id ilike $1
 and
     branches.id ilike $2
+and
+    branch_items.delete_date is null
 order by 
     items.name
 desc
@@ -58,7 +60,9 @@ on
 where
     categories.id ilike $1
 and
-    branches.id ilike $2;
+    branches.id ilike $2
+and
+    branch_items.delete_date is null;
 
 -- name: CountCategory :one
 select
@@ -66,7 +70,9 @@ select
 from
     categories
 where
-    categories.name ilike $1;
+    categories.name ilike $1
+and
+    categories.delete_date is null;
 
 -- name: FetchCategory :many
 select
@@ -79,6 +85,8 @@ from
     categories
 where
     categories.name ilike $1
+and
+    categories.delete_date is null
 order by
     categories.id
 desc
@@ -98,3 +106,12 @@ values
     $2,
     $3
 );
+
+-- name: UpdateCategory :exec
+update categories
+set
+    name = $1,
+    description = $2,
+    update_date = $3
+where
+    id = $4;

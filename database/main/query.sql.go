@@ -18,6 +18,8 @@ from
     categories
 where
     categories.name ilike $1
+and
+    categories.delete_date is null
 `
 
 func (q *Queries) CountCategory(ctx context.Context, name string) (int64, error) {
@@ -52,6 +54,8 @@ where
     categories.id ilike $1
 and
     branches.id ilike $2
+and
+    branch_items.delete_date is null
 `
 
 type CountInventoryItemsParams struct {
@@ -103,6 +107,8 @@ from
     categories
 where
     categories.name ilike $1
+and
+    categories.delete_date is null
 order by
     categories.id
 desc
@@ -180,6 +186,8 @@ where
     categories.id ilike $1
 and
     branches.id ilike $2
+and
+    branch_items.delete_date is null
 order by 
     items.name
 desc
@@ -233,4 +241,31 @@ func (q *Queries) FetchInventoryItems(ctx context.Context, arg FetchInventoryIte
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateCategory = `-- name: UpdateCategory :exec
+update categories
+set
+    name = $1,
+    description = $2,
+    update_date = $3
+where
+    id = $4
+`
+
+type UpdateCategoryParams struct {
+	Name        string
+	Description string
+	UpdateDate  pgtype.Timestamp
+	ID          string
+}
+
+func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) error {
+	_, err := q.db.Exec(ctx, updateCategory,
+		arg.Name,
+		arg.Description,
+		arg.UpdateDate,
+		arg.ID,
+	)
+	return err
 }

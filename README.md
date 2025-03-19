@@ -6,8 +6,8 @@ TODO:
 - [x] create example 1 endpoint
 - [x] create working endpoint to show all item in inventory
 - [x] create working endpoint to show category
-- [ ] create working endpoint to insert category
-- [ ] create working endpoint to update category
+- [x] create working endpoint to insert category
+- [x] create working endpoint to update category
 - [ ] create working endpoint to delete category
 - [ ] create working endpoint to show location
 - [ ] create working endpoint to insert location
