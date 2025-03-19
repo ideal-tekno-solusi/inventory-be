@@ -82,3 +82,20 @@ func (r *RestService) CategoryUpdate(ctx *gin.Context, params *operation.Categor
 
 	ctx.Status(http.StatusNoContent)
 }
+
+func (r *RestService) CategoryDelete(ctx *gin.Context, params *operation.CategoryDeleteRequest) {
+	repo := repository.InitRepo(r.dbr, r.dbw)
+	categoryService := repository.CategoryRepository(repo)
+
+	err := categoryService.DeleteCategory(ctx, params)
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to soft delete category with error: %v", err)
+		logrus.Warn(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}

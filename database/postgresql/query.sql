@@ -115,3 +115,10 @@ set
     update_date = $3
 where
     id = $4;
+
+-- name: DeleteCategory :exec
+update categories
+set
+    delete_date = $1
+where
+    id = $2;

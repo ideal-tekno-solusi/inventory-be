@@ -11,4 +11,5 @@ func Router(r *gin.Engine, s Service) {
 	r.GET("/category", operation.CategoryWrapper(s.Category))
 	r.POST("/category", operation.CategoryCreateWrapper(s.CategoryCreate))
 	r.PATCH("/category/:id/update", operation.CategoryUpdateWrapper(s.CategoryUpdate))
+	r.DELETE("/category/:id/delete", operation.CategoryDeleteWrapper(s.CategoryDelete))
 }

@@ -16,6 +16,7 @@ type Category interface {
 	FetchCategory(ctx context.Context, params *operation.CategoryRequest) (*[]database.FetchCategoryRow, error)
 	CreateCategory(ctx context.Context, params *operation.CategoryCreateRequest) error
 	UpdateCategory(ctx context.Context, params *operation.CategoryUpdateRequest) error
+	DeleteCategory(ctx context.Context, params *operation.CategoryDeleteRequest) error
 }
 
 type CategoryService struct {
@@ -86,6 +87,23 @@ func (r *Repository) UpdateCategory(ctx context.Context, params *operation.Categ
 	}
 
 	err := r.write.UpdateCategory(ctx, args)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repository) DeleteCategory(ctx context.Context, params *operation.CategoryDeleteRequest) error {
+	args := database.DeleteCategoryParams{
+		DeleteDate: pgtype.Timestamp{
+			Time:  time.Now(),
+			Valid: true,
+		},
+		ID: params.Id,
+	}
+
+	err := r.write.DeleteCategory(ctx, args)
 	if err != nil {
 		return err
 	}

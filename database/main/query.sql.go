@@ -96,6 +96,24 @@ func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) 
 	return err
 }
 
+const deleteCategory = `-- name: DeleteCategory :exec
+update categories
+set
+    delete_date = $1
+where
+    id = $2
+`
+
+type DeleteCategoryParams struct {
+	DeleteDate pgtype.Timestamp
+	ID         string
+}
+
+func (q *Queries) DeleteCategory(ctx context.Context, arg DeleteCategoryParams) error {
+	_, err := q.db.Exec(ctx, deleteCategory, arg.DeleteDate, arg.ID)
+	return err
+}
+
 const fetchCategory = `-- name: FetchCategory :many
 select
     categories.id,
