@@ -9,6 +9,7 @@ TODO:
 - [x] create working endpoint to insert category
 - [x] create working endpoint to update category
 - [x] create working endpoint to delete category
+- [ ] create working endpoint to login (redirect to sso)
 - [ ] create working endpoint to show location
 - [ ] create working endpoint to insert location
 - [ ] create working endpoint to update location
