@@ -19,7 +19,7 @@ func (r *RestService) Category(ctx *gin.Context, params *operation.CategoryReque
 
 	var res entity.CategoryResponse
 
-	totalData, totalPage, err := categoryService.CountCategory(ctx, params)
+	totalData, totalPage, err := categoryService.CountCategory(ctx, params.Name, params.Limit)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to count categories with error: %v", err)
 		logrus.Error(errorMessage)
@@ -29,7 +29,7 @@ func (r *RestService) Category(ctx *gin.Context, params *operation.CategoryReque
 		return
 	}
 
-	categories, err := categoryService.FetchCategory(ctx, params)
+	categories, err := categoryService.FetchCategory(ctx, params.Name, params.Page, params.Limit)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to fetch categories with error: %v", err)
 		logrus.Warn(errorMessage)
@@ -53,7 +53,26 @@ func (r *RestService) CategoryCreate(ctx *gin.Context, params *operation.Categor
 	repo := repository.InitRepo(r.dbr, r.dbw)
 	categoryService := repository.CategoryRepository(repo)
 
-	err := categoryService.CreateCategory(ctx, params)
+	countExist, _, err := categoryService.CountCategory(ctx, params.Name, 10)
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to count categories exist with error: %v", err)
+		logrus.Error(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
+	if countExist > 0 {
+		errorMessage := fmt.Sprintf("failed to create new category with name %v, name already exist", params.Name)
+		logrus.Warn(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
+	err = categoryService.CreateCategory(ctx, params.Name, params.Description)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to create new category with error: %v", err)
 		logrus.Warn(errorMessage)
@@ -70,7 +89,7 @@ func (r *RestService) CategoryUpdate(ctx *gin.Context, params *operation.Categor
 	repo := repository.InitRepo(r.dbr, r.dbw)
 	categoryService := repository.CategoryRepository(repo)
 
-	err := categoryService.UpdateCategory(ctx, params)
+	err := categoryService.UpdateCategory(ctx, params.Id, params.Name, params.Description)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to update category with error: %v", err)
 		logrus.Warn(errorMessage)
@@ -87,7 +106,7 @@ func (r *RestService) CategoryDelete(ctx *gin.Context, params *operation.Categor
 	repo := repository.InitRepo(r.dbr, r.dbw)
 	categoryService := repository.CategoryRepository(repo)
 
-	err := categoryService.DeleteCategory(ctx, params)
+	err := categoryService.DeleteCategory(ctx, params.Id)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to soft delete category with error: %v", err)
 		logrus.Warn(errorMessage)
