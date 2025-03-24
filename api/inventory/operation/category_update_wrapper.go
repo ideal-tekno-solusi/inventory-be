@@ -21,7 +21,7 @@ func CategoryUpdateWrapper(handler func(ctx *gin.Context, params *CategoryUpdate
 
 		params.Id = ctx.Param("id")
 
-		err := ctx.BindJSON(&params)
+		err := ctx.ShouldBindBodyWithJSON(&params)
 		if err != nil {
 			utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, err.Error(), ctx.FullPath(), uuid.NewString())
 

@@ -19,7 +19,7 @@ func CategoryWrapper(handler func(ctx *gin.Context, params *CategoryRequest)) gi
 	return func(ctx *gin.Context) {
 		params := CategoryRequest{}
 
-		err := ctx.Bind(&params)
+		err := ctx.ShouldBind(&params)
 		if err != nil {
 			utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, err.Error(), ctx.FullPath(), uuid.NewString())
 

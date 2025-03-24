@@ -12,4 +12,5 @@ type Service interface {
 	CategoryCreate(ctx *gin.Context, params *operation.CategoryCreateRequest)
 	CategoryUpdate(ctx *gin.Context, params *operation.CategoryUpdateRequest)
 	CategoryDelete(ctx *gin.Context, params *operation.CategoryDeleteRequest)
+	Login(ctx *gin.Context)
 }

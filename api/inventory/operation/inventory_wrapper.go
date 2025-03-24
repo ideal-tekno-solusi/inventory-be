@@ -20,7 +20,7 @@ func InventoryWrapper(handler func(ctx *gin.Context, params *InventoryRequest)) 
 	return func(ctx *gin.Context) {
 		params := InventoryRequest{}
 
-		err := ctx.Bind(&params)
+		err := ctx.ShouldBind(&params)
 		if err != nil {
 			utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, err.Error(), ctx.FullPath(), uuid.NewString())
 

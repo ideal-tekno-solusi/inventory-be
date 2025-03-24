@@ -2,6 +2,12 @@ services:
   host: localhost
   port: 8080
 
+config:
+  csrf:
+    age: 600 #seconds
+    domain: "localhost:8080"
+    path: "/"
+
 database:
   read:
     driver: postgresql

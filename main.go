@@ -2,6 +2,7 @@ package main
 
 import (
 	"app/api"
+	"app/api/middleware"
 	"app/bootstrap"
 	"context"
 	"fmt"
@@ -28,6 +29,8 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	r.Use(middleware.CsrfGenerateWrapper())
 
 	cfg := bootstrap.InitContainer()
 
