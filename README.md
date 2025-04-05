@@ -9,6 +9,8 @@ TODO:
 - [x] create working endpoint to insert category
 - [x] create working endpoint to update category
 - [x] create working endpoint to delete category
+- [x] create generate code verifier for oauth 2.0 flow https://datatracker.ietf.org/doc/html/rfc7636#section-4.1
+- [x] create generate code challenge for oauth 2.0 flow https://datatracker.ietf.org/doc/html/rfc7636#section-4.2
 - [ ] create working endpoint to login (redirect to sso)
 - [ ] create working endpoint to show location
 - [ ] create working endpoint to insert location

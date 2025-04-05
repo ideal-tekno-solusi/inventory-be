@@ -14,12 +14,12 @@ import (
 )
 
 type CsrfValidatorRequest struct {
-	XXsrfToken string `json:"X-XSRF-TOKEN"`
+	XXsrfToken string `json:"INVENTORY-XSRF-TOKEN"`
 }
 
 func CsrfGenerateWrapper() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		csrfTokenCookie, _ := ctx.Cookie("X-XSRF-TOKEN")
+		csrfTokenCookie, _ := ctx.Cookie("INVENTORY-XSRF-TOKEN")
 
 		if csrfTokenCookie != "" {
 			ctx.Next()
@@ -39,7 +39,7 @@ func CsrfGenerateWrapper() gin.HandlerFunc {
 
 		encode := base64.StdEncoding.EncodeToString(key)
 
-		ctx.SetCookie("X-XSRF-TOKEN", encode, age, path, domain, false, false)
+		ctx.SetCookie("INVENTORY-XSRF-TOKEN", encode, age, path, domain, false, false)
 
 		ctx.Next()
 	}
@@ -47,7 +47,7 @@ func CsrfGenerateWrapper() gin.HandlerFunc {
 
 func CsrfValidatorWrapper() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		csrfTokenCookie, _ := ctx.Cookie("X-XSRF-TOKEN")
+		csrfTokenCookie, _ := ctx.Cookie("INVENTORY-XSRF-TOKEN")
 
 		if csrfTokenCookie == "" {
 			utils.SendProblemDetailJson(ctx, http.StatusForbidden, "csrf token is empty", ctx.FullPath(), uuid.NewString())
