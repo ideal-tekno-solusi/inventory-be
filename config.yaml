@@ -5,7 +5,7 @@ services:
 config:
   csrf:
     age: 600 #seconds
-    domain: "localhost:8080"
+    domain: "localhost"
     path: "/"
 
 database:
