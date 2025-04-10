@@ -7,6 +7,10 @@ config:
     age: 600 #seconds
     domain: "localhost"
     path: "/"
+  oauth:
+    age: 3600 #seconds
+    domain: "localhost"
+    path: "/"
 
 database:
   read:
