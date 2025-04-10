@@ -9,7 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/spf13/viper"
 )
 
 func (r *RestService) Login(ctx *gin.Context) {
@@ -31,22 +30,12 @@ func (r *RestService) Login(ctx *gin.Context) {
 	//? set cookie httponly for code verifier, untuk dev di set ke 1 jam
 	ctx.SetCookie("INVENTORY-CODE-VERIFIER", string(codeVerifier), 3600, "/", "localhost", false, true)
 
-	//TODO: below create new csrf token, ignore the middleware one and replace it with this new token
-	age := viper.GetInt("config.csrf.age")
-	domain := viper.GetString("config.csrf.domain")
-	path := viper.GetString("config.csrf.path")
-
-	key := make([]byte, 32)
-	_, err = rand.Read(key)
-	if err != nil {
-		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, err.Error(), ctx.FullPath(), uuid.NewString())
+	csrfToken, csrfTokenExist := ctx.Get("INVENTORY-XSRF-TOKEN")
+	if !csrfTokenExist {
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, "csrf token not found, please try again or contact our admin", ctx.FullPath(), uuid.NewString())
 
 		return
 	}
-
-	csrfToken := base64.StdEncoding.EncodeToString(key)
-
-	ctx.SetCookie("INVENTORY-XSRF-TOKEN", csrfToken, age, path, domain, false, false)
 
 	type test struct {
 		Csrf      string `json:"csrf"`
@@ -54,7 +43,7 @@ func (r *RestService) Login(ctx *gin.Context) {
 	}
 
 	res := test{
-		Csrf:      csrfToken,
+		Csrf:      csrfToken.(string),
 		Challenge: codeChallenge,
 	}
 

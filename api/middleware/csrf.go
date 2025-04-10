@@ -22,6 +22,8 @@ func CsrfGenerateWrapper() gin.HandlerFunc {
 		csrfTokenCookie, _ := ctx.Cookie("INVENTORY-XSRF-TOKEN")
 
 		if csrfTokenCookie != "" {
+			ctx.Set("INVENTORY-XSRF-TOKEN", csrfTokenCookie)
+
 			ctx.Next()
 		}
 
@@ -40,6 +42,7 @@ func CsrfGenerateWrapper() gin.HandlerFunc {
 		encode := base64.StdEncoding.EncodeToString(key)
 
 		ctx.SetCookie("INVENTORY-XSRF-TOKEN", encode, age, path, domain, false, false)
+		ctx.Set("INVENTORY-XSRF-TOKEN", encode)
 
 		ctx.Next()
 	}
