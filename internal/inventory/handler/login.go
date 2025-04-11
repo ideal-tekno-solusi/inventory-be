@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"app/api/inventory/operation"
 	"app/utils"
 	"crypto/rand"
 	"crypto/sha256"
@@ -14,7 +15,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func (r *RestService) Login(ctx *gin.Context) {
+func (r *RestService) Login(ctx *gin.Context, params *operation.LoginRequest) {
 	//? flow generate code verifier + code challenge here
 	//TODO: this codeVerifier need to be improve so that the string can contain special char
 	codeVerifier := make([]byte, 128)
@@ -37,21 +38,15 @@ func (r *RestService) Login(ctx *gin.Context) {
 	//? set cookie httponly for code verifier
 	ctx.SetCookie("INVENTORY-CODE-VERIFIER", string(codeVerifier), age, path, domain, false, true)
 
-	csrfToken, csrfTokenExist := ctx.Get("INVENTORY-XSRF-TOKEN")
-	if !csrfTokenExist {
-		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, "csrf token not found, please try again or contact our admin", ctx.FullPath(), uuid.NewString())
+	redParams := url.Values{}
+	//TODO: change after dev, preferable to set redirect url from req
+	redParams.Add("redirect_url", "https://google.com")
+	redParams.Add("client_id", "inventory")
+	redParams.Add("response_type", "code")
+	redParams.Add("scopes", "user inventory")
+	redParams.Add("state", params.CsrfToken)
+	redParams.Add("code_challenge", codeChallenge)
+	redParams.Add("code_challenge_method", "S256")
 
-		return
-	}
-
-	params := url.Values{}
-	params.Add("redirect_url", "https://google.com")
-	params.Add("client_id", "inventory")
-	params.Add("response_type", "code")
-	params.Add("scopes", "user inventory")
-	params.Add("state", csrfToken.(string))
-	params.Add("code_challenge", codeChallenge)
-	params.Add("code_challenge_method", "S256")
-
-	ctx.Redirect(http.StatusPermanentRedirect, fmt.Sprintf("http://localhost:8081/v1/api/authorization?%v", params.Encode()))
+	ctx.Redirect(http.StatusPermanentRedirect, fmt.Sprintf("http://localhost:8081/v1/api/authorization?%v", redParams.Encode()))
 }

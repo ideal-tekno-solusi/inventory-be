@@ -2,7 +2,6 @@ package main
 
 import (
 	"app/api"
-	"app/api/middleware"
 	"app/bootstrap"
 	"context"
 	"fmt"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/csrf"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -30,7 +30,13 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	r.Use(middleware.CsrfGenerateWrapper())
+	CSRF := csrf.Protect(
+		[]byte("kNaV2rHX12L4bUuhEEXQ9plJbjtYN2P7"),
+		csrf.Domain("localhost"),
+		csrf.Path("/"),
+		csrf.MaxAge(3600),
+		csrf.RequestHeader("Inventory-CSRF-Token"),
+	)
 
 	cfg := bootstrap.InitContainer()
 
@@ -38,7 +44,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%v:%v", viper.GetString("services.host"), viper.GetString("services.port")),
-		Handler: r.Handler(),
+		Handler: CSRF(r.Handler()),
 	}
 
 	go func() {

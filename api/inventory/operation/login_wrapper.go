@@ -1,12 +1,32 @@
 package operation
 
-import "github.com/gin-gonic/gin"
+import (
+	"app/utils"
+	"net/http"
 
-type LoginRequest struct{}
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/gorilla/csrf"
+)
 
-func LoginWrapper(handler func(ctx *gin.Context)) gin.HandlerFunc {
+type LoginRequest struct {
+	CsrfToken string
+}
+
+func LoginWrapper(handler func(ctx *gin.Context, params *LoginRequest)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		handler(ctx)
+		params := LoginRequest{}
+
+		csrfToken := csrf.Token(ctx.Request)
+		if csrfToken == "" {
+			utils.SendProblemDetailJson(ctx, http.StatusBadRequest, "csrf token is empty, please try again", ctx.FullPath(), uuid.NewString())
+
+			return
+		}
+
+		params.CsrfToken = csrfToken
+
+		handler(ctx, &params)
 
 		ctx.Next()
 	}
