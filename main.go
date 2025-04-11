@@ -23,22 +23,26 @@ func main() {
 	// TODO: cek lagi CORS ini
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://127.0.0.1:8080"},
-		AllowMethods:     []string{"GET", "POST", "PUT"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH"},
 		AllowHeaders:     []string{"Origin"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
 
-	CSRF := csrf.Protect(
-		[]byte("kNaV2rHX12L4bUuhEEXQ9plJbjtYN2P7"),
-		csrf.Domain("localhost"),
-		csrf.Path("/"),
-		csrf.MaxAge(3600),
-		csrf.RequestHeader("Inventory-CSRF-Token"),
-	)
-
 	cfg := bootstrap.InitContainer()
+
+	csrfSecret := viper.GetString("config.csrf.secret")
+	csrfDomain := viper.GetString("config.csrf.domain")
+	csrfPath := viper.GetString("config.csrf.path")
+	csrfAge := viper.GetInt("config.csrf.age")
+
+	CSRF := csrf.Protect(
+		[]byte(csrfSecret),
+		csrf.Domain(csrfDomain),
+		csrf.Path(csrfPath),
+		csrf.MaxAge(csrfAge),
+	)
 
 	api.RegisterApi(r, cfg)
 

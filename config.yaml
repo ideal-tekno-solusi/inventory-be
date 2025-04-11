@@ -4,6 +4,7 @@ services:
 
 config:
   csrf:
+    secret: kNaV2rHX12L4bUuhEEXQ9plJbjtYN2P7
     age: 600 #seconds
     domain: "localhost"
     path: "/"

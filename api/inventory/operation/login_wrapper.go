@@ -24,6 +24,8 @@ func LoginWrapper(handler func(ctx *gin.Context, params *LoginRequest)) gin.Hand
 			return
 		}
 
+		ctx.Header("X-CSRF-Token", csrfToken)
+
 		params.CsrfToken = csrfToken
 
 		handler(ctx, &params)

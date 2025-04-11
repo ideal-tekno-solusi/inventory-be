@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/gorilla/csrf"
 )
 
 type CategoryUpdateRequest struct {
@@ -34,6 +35,15 @@ func CategoryUpdateWrapper(handler func(ctx *gin.Context, params *CategoryUpdate
 
 			return
 		}
+
+		csrfToken := csrf.Token(ctx.Request)
+		if csrfToken == "" {
+			utils.SendProblemDetailJson(ctx, http.StatusBadRequest, "csrf token is empty, please try again", ctx.FullPath(), uuid.NewString())
+
+			return
+		}
+
+		ctx.Header("X-CSRF-Token", csrfToken)
 
 		handler(ctx, &params)
 
