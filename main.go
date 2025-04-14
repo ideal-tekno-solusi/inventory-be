@@ -3,6 +3,7 @@ package main
 import (
 	"app/api"
 	"app/bootstrap"
+	"app/utils"
 	"context"
 	"fmt"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/gorilla/csrf"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -42,6 +44,10 @@ func main() {
 		csrf.Domain(csrfDomain),
 		csrf.Path(csrfPath),
 		csrf.MaxAge(csrfAge),
+		csrf.ErrorHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			errorMessage := r.Context().Value("gorilla.csrf.Error").(error)
+			utils.SendProblemDetailJsonHttp(w, http.StatusForbidden, errorMessage.Error(), r.URL.Path, uuid.NewString())
+		})),
 	)
 
 	api.RegisterApi(r, cfg)

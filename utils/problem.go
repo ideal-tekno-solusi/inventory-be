@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -30,4 +31,12 @@ func SendProblemDetailJson(ctx *gin.Context, statusCode int, message, instance, 
 
 	ctx.Header("Content-Type", "application/problem+json")
 	ctx.JSON(statusCode, problem)
+}
+
+func SendProblemDetailJsonHttp(w http.ResponseWriter, statusCode int, message, instance, guid string) {
+	problem := generateProblemJson(statusCode, message, instance, guid)
+
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(problem)
 }
