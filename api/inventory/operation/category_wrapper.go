@@ -2,7 +2,6 @@ package operation
 
 import (
 	"app/utils"
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -29,13 +28,6 @@ func CategoryWrapper(handler func(ctx *gin.Context, params *CategoryRequest)) gi
 
 		params = defaultValueCategory(params)
 
-		err = validateCategoryReq(params)
-		if err != nil {
-			utils.SendProblemDetailJson(ctx, http.StatusBadRequest, err.Error(), ctx.FullPath(), uuid.NewString())
-
-			return
-		}
-
 		csrfToken := csrf.Token(ctx.Request)
 		if csrfToken == "" {
 			utils.SendProblemDetailJson(ctx, http.StatusBadRequest, "csrf token is empty, please try again", ctx.FullPath(), uuid.NewString())
@@ -51,24 +43,12 @@ func CategoryWrapper(handler func(ctx *gin.Context, params *CategoryRequest)) gi
 	}
 }
 
-func validateCategoryReq(params CategoryRequest) error {
-	if params.Page < 0 {
-		return errors.New("page value can't lower than 1")
-	}
-
-	if params.Limit < 0 {
-		return errors.New("limit value can't lower than 10")
-	}
-
-	return nil
-}
-
 func defaultValueCategory(params CategoryRequest) CategoryRequest {
-	if params.Page == 0 {
+	if params.Page <= 0 {
 		params.Page = 1
 	}
 
-	if params.Limit == 0 {
+	if params.Limit <= 10 {
 		params.Limit = 10
 	}
 

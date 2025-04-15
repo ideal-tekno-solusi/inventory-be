@@ -2,39 +2,44 @@ package operation
 
 import (
 	"app/utils"
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/gorilla/csrf"
 )
 
+type CategoryUpdateRequestUri struct {
+	Id string `uri:"id" binding:"required,max=20"`
+}
+
 type CategoryUpdateRequest struct {
 	Id          string
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string `json:"name" binding:"required,max=255"`
+	Description string `json:"description" binding:"required"`
 }
 
 func CategoryUpdateWrapper(handler func(ctx *gin.Context, params *CategoryUpdateRequest)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		uriParams := CategoryUpdateRequestUri{}
 		params := CategoryUpdateRequest{}
 
-		params.Id = ctx.Param("id")
+		err := ctx.ShouldBindUri(&uriParams)
+		if err != nil {
+			utils.SendProblemDetailJsonValidate(ctx, http.StatusBadRequest, "validation error", ctx.FullPath(), uuid.NewString(), err.(validator.ValidationErrors))
 
-		err := ctx.ShouldBindBodyWithJSON(&params)
+			return
+		}
+
+		err = ctx.ShouldBindBodyWithJSON(&params)
 		if err != nil {
 			utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, err.Error(), ctx.FullPath(), uuid.NewString())
 
 			return
 		}
 
-		err = validateCategoryUpdateReq(params)
-		if err != nil {
-			utils.SendProblemDetailJson(ctx, http.StatusBadRequest, err.Error(), ctx.FullPath(), uuid.NewString())
-
-			return
-		}
+		params.Id = uriParams.Id
 
 		csrfToken := csrf.Token(ctx.Request)
 		if csrfToken == "" {
@@ -49,28 +54,4 @@ func CategoryUpdateWrapper(handler func(ctx *gin.Context, params *CategoryUpdate
 
 		ctx.Next()
 	}
-}
-
-func validateCategoryUpdateReq(params CategoryUpdateRequest) error {
-	if params.Id == "" {
-		return errors.New("id can't be empty")
-	}
-
-	if len(params.Id) > 20 {
-		return errors.New("invalid id length")
-	}
-
-	if params.Name == "" {
-		return errors.New("name can't be empty")
-	}
-
-	if len(params.Name) > 255 {
-		return errors.New("name max length is 255 character")
-	}
-
-	if params.Description == "" {
-		return errors.New("description can't be empty")
-	}
-
-	return nil
 }

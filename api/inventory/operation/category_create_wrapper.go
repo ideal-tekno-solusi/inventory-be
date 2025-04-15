@@ -2,17 +2,17 @@ package operation
 
 import (
 	"app/utils"
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/gorilla/csrf"
 )
 
 type CategoryCreateRequest struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string `json:"name" binding:"required,max=255"`
+	Description string `json:"description" binding:"required"`
 }
 
 func CategoryCreateWrapper(handler func(ctx *gin.Context, params *CategoryCreateRequest)) gin.HandlerFunc {
@@ -21,14 +21,7 @@ func CategoryCreateWrapper(handler func(ctx *gin.Context, params *CategoryCreate
 
 		err := ctx.ShouldBindBodyWithJSON(&params)
 		if err != nil {
-			utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, err.Error(), ctx.FullPath(), uuid.NewString())
-
-			return
-		}
-
-		err = validateCategoryCreateReq(params)
-		if err != nil {
-			utils.SendProblemDetailJson(ctx, http.StatusBadRequest, err.Error(), ctx.FullPath(), uuid.NewString())
+			utils.SendProblemDetailJsonValidate(ctx, http.StatusBadRequest, "validation error", ctx.FullPath(), uuid.NewString(), err.(validator.ValidationErrors))
 
 			return
 		}
@@ -46,20 +39,4 @@ func CategoryCreateWrapper(handler func(ctx *gin.Context, params *CategoryCreate
 
 		ctx.Next()
 	}
-}
-
-func validateCategoryCreateReq(params CategoryCreateRequest) error {
-	if params.Name == "" {
-		return errors.New("name can't be empty")
-	}
-
-	if len(params.Name) > 255 {
-		return errors.New("name max length is 255 character")
-	}
-
-	if params.Description == "" {
-		return errors.New("description can't be empty")
-	}
-
-	return nil
 }
