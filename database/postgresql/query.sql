@@ -122,3 +122,19 @@ set
     delete_date = $1
 where
     id = $2;
+
+-- name: CreateChallenge :exec
+insert into challenges
+(
+    code_verifier,
+    code_challenge,
+    code_challenge_method,
+    insert_date
+)
+values
+(
+    $1,
+    $2,
+    $3,
+    now()
+);

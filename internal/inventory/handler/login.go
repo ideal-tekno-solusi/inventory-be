@@ -2,6 +2,7 @@ package handler
 
 import (
 	"app/api/inventory/operation"
+	"app/internal/inventory/repository"
 	"app/utils"
 	"crypto/rand"
 	"crypto/sha256"
@@ -12,12 +13,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/spf13/viper"
+	"github.com/sirupsen/logrus"
 )
 
 func (r *RestService) Login(ctx *gin.Context, params *operation.LoginRequest) {
 	//? flow generate code verifier + code challenge here
-	//TODO: this codeVerifier need to be improve so that the string can contain special char
 	codeVerifier := make([]byte, 128)
 	_, err := rand.Read(codeVerifier)
 	if err != nil {
@@ -26,23 +26,30 @@ func (r *RestService) Login(ctx *gin.Context, params *operation.LoginRequest) {
 		return
 	}
 
+	codeVerifierString := base64.URLEncoding.EncodeToString(codeVerifier)
+
 	hash := sha256.New()
 
-	hash.Write(codeVerifier)
+	hash.Write([]byte(codeVerifierString))
 	codeChallenge := base64.StdEncoding.EncodeToString(hash.Sum(nil))
 
-	age := viper.GetInt("config.oauth.age")
-	domain := viper.GetString("config.oauth.domain")
-	path := viper.GetString("config.oauth.path")
+	repo := repository.InitRepo(r.dbr, r.dbw)
+	loginService := repository.LoginRepository(repo)
 
-	//? set cookie httponly for code verifier
-	ctx.SetCookie("INVENTORY-CODE-VERIFIER", string(codeVerifier), age, path, domain, false, true)
+	err = loginService.CreateChallenge(ctx, codeVerifierString, codeChallenge, "S256")
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to create new challenge with error: %v", err)
+		logrus.Warn(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
 
 	redParams := url.Values{}
-	//TODO: change after dev, preferable to set redirect url from req
-	redParams.Add("redirect_url", "https://google.com")
-	redParams.Add("client_id", "inventory")
 	redParams.Add("response_type", "code")
+	redParams.Add("client_id", "inventory")
+	redParams.Add("redirect_url", "http://localhost:8080/v1/api/callback")
 	redParams.Add("scopes", "user inventory")
 	redParams.Add("state", params.CsrfToken)
 	redParams.Add("code_challenge", codeChallenge)

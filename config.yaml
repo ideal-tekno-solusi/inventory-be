@@ -13,6 +13,12 @@ config:
     domain: "localhost"
     path: "/"
 
+secret:
+  inventory:
+    key: ES256
+    private: "-----BEGIN EC PRIVATE KEY-----MHcCAQEEIEzx52mglW36W9Wy+J6B5Fwsx9a/HxHDVG0LiS+MqVa9oAoGCCqGSM49AwEHoUQDQgAE5+2HXR81VJEAZpYJI6WHKCbIVGeW96P685AN1CXxiPJ8CIKBEXmtuuJKESnhZBZpiFaMRnnCv9ondlbd7NDfCQ==-----END EC PRIVATE KEY-----"
+    public: "-----BEGIN PUBLIC KEY-----MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE5+2HXR81VJEAZpYJI6WHKCbIVGeW96P685AN1CXxiPJ8CIKBEXmtuuJKESnhZBZpiFaMRnnCv9ondlbd7NDfCQ==-----END PUBLIC KEY-----"
+
 database:
   read:
     driver: postgresql

@@ -78,6 +78,13 @@ create table if not exists inventory.branch_items (
 	delete_date timestamp
 );
 
+create table if not exists inventory.challenges (
+	code_verifier text,
+	code_challenge text,
+	code_challenge_method varchar(5),
+	insert_date timestamp
+);
+
 insert into inventory.categories
 	(
 		name,

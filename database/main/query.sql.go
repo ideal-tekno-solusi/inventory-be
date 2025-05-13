@@ -96,6 +96,34 @@ func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) 
 	return err
 }
 
+const createChallenge = `-- name: CreateChallenge :exec
+insert into challenges
+(
+    code_verifier,
+    code_challenge,
+    code_challenge_method,
+    insert_date
+)
+values
+(
+    $1,
+    $2,
+    $3,
+    now()
+)
+`
+
+type CreateChallengeParams struct {
+	CodeVerifier        pgtype.Text
+	CodeChallenge       pgtype.Text
+	CodeChallengeMethod pgtype.Text
+}
+
+func (q *Queries) CreateChallenge(ctx context.Context, arg CreateChallengeParams) error {
+	_, err := q.db.Exec(ctx, createChallenge, arg.CodeVerifier, arg.CodeChallenge, arg.CodeChallengeMethod)
+	return err
+}
+
 const deleteCategory = `-- name: DeleteCategory :exec
 update categories
 set
