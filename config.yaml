@@ -14,6 +14,8 @@ config:
     path: "/"
 
 secret:
+  sso:
+    public: "-----BEGIN PUBLIC KEY-----MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXO9dtngJP2xTv+A+OzN579sYggCNoSXkNScNisHxVO+jd+WLhVMJiqdz8NC6kwKzCxqq4EJKzlFz5r/5qZsusg==-----END PUBLIC KEY-----"
   inventory:
     key: ES256
     private: "-----BEGIN EC PRIVATE KEY-----MHcCAQEEIEzx52mglW36W9Wy+J6B5Fwsx9a/HxHDVG0LiS+MqVa9oAoGCCqGSM49AwEHoUQDQgAE5+2HXR81VJEAZpYJI6WHKCbIVGeW96P685AN1CXxiPJ8CIKBEXmtuuJKESnhZBZpiFaMRnnCv9ondlbd7NDfCQ==-----END EC PRIVATE KEY-----"
