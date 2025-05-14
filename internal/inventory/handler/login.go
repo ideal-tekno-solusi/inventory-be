@@ -49,7 +49,7 @@ func (r *RestService) Login(ctx *gin.Context, params *operation.LoginRequest) {
 	redParams := url.Values{}
 	redParams.Add("response_type", "code")
 	redParams.Add("client_id", "inventory")
-	redParams.Add("redirect_url", "http://localhost:8080/v1/api/callback")
+	redParams.Add("redirect_url", params.RedirectUrl)
 	redParams.Add("scopes", "user inventory")
 	redParams.Add("state", params.CsrfToken)
 	redParams.Add("code_challenge", codeChallenge)
