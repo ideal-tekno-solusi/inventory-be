@@ -13,4 +13,5 @@ type Service interface {
 	CategoryUpdate(ctx *gin.Context, params *operation.CategoryUpdateRequest)
 	CategoryDelete(ctx *gin.Context, params *operation.CategoryDeleteRequest)
 	Login(ctx *gin.Context, params *operation.LoginRequest)
+	Callback(ctx *gin.Context, params *operation.CallbackRequest)
 }

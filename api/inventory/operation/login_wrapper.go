@@ -11,7 +11,7 @@ import (
 )
 
 type LoginRequest struct {
-	RedirectUrl string `query:"redirect-url"`
+	RedirectUrl string `form:"redirect-url"`
 	CsrfToken   string
 }
 
@@ -19,7 +19,7 @@ func LoginWrapper(handler func(ctx *gin.Context, params *LoginRequest)) gin.Hand
 	return func(ctx *gin.Context) {
 		params := LoginRequest{}
 
-		err := ctx.ShouldBindQuery(&params)
+		err := ctx.ShouldBind(&params)
 		if err != nil {
 			utils.SendProblemDetailJsonValidate(ctx, http.StatusBadRequest, "validation error", ctx.FullPath(), uuid.NewString(), err.(validator.ValidationErrors))
 
@@ -32,8 +32,6 @@ func LoginWrapper(handler func(ctx *gin.Context, params *LoginRequest)) gin.Hand
 
 			return
 		}
-
-		ctx.Header("X-CSRF-Token", csrfToken)
 
 		params.CsrfToken = csrfToken
 

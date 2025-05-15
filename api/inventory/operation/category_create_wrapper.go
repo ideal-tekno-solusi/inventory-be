@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
-	"github.com/gorilla/csrf"
 )
 
 type CategoryCreateRequest struct {
@@ -25,15 +24,6 @@ func CategoryCreateWrapper(handler func(ctx *gin.Context, params *CategoryCreate
 
 			return
 		}
-
-		csrfToken := csrf.Token(ctx.Request)
-		if csrfToken == "" {
-			utils.SendProblemDetailJson(ctx, http.StatusBadRequest, "csrf token is empty, please try again", ctx.FullPath(), uuid.NewString())
-
-			return
-		}
-
-		ctx.Header("X-CSRF-Token", csrfToken)
 
 		handler(ctx, &params)
 

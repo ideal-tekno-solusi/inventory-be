@@ -289,6 +289,30 @@ func (q *Queries) FetchInventoryItems(ctx context.Context, arg FetchInventoryIte
 	return items, nil
 }
 
+const getChallenge = `-- name: GetChallenge :one
+select
+    code_verifier,
+    code_challenge,
+    code_challenge_method,
+    insert_date
+from
+    challenges
+where
+    code_challenge = $1
+`
+
+func (q *Queries) GetChallenge(ctx context.Context, codeChallenge pgtype.Text) (Challenge, error) {
+	row := q.db.QueryRow(ctx, getChallenge, codeChallenge)
+	var i Challenge
+	err := row.Scan(
+		&i.CodeVerifier,
+		&i.CodeChallenge,
+		&i.CodeChallengeMethod,
+		&i.InsertDate,
+	)
+	return i, err
+}
+
 const updateCategory = `-- name: UpdateCategory :exec
 update categories
 set

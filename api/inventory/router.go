@@ -14,4 +14,5 @@ func Router(r *gin.Engine, s Service) {
 	v1.PATCH("/api/category/:id/update", operation.CategoryUpdateWrapper(s.CategoryUpdate))
 	v1.DELETE("/api/category/:id/delete", operation.CategoryDeleteWrapper(s.CategoryDelete))
 	v1.GET("/api/login", operation.LoginWrapper(s.Login))
+	v1.GET("/api/callback", operation.CallbackWrapper(s.Callback))
 }

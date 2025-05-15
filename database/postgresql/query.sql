@@ -138,3 +138,14 @@ values
     $3,
     now()
 );
+
+-- name: GetChallenge :one
+select
+    code_verifier,
+    code_challenge,
+    code_challenge_method,
+    insert_date
+from
+    challenges
+where
+    code_challenge = $1;

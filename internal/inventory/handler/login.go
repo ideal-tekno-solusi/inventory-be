@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 func (r *RestService) Login(ctx *gin.Context, params *operation.LoginRequest) {
@@ -46,6 +47,9 @@ func (r *RestService) Login(ctx *gin.Context, params *operation.LoginRequest) {
 		return
 	}
 
+	uri := viper.GetString("config.auth.uri")
+	path := viper.GetString("config.auth.path.auth")
+
 	redParams := url.Values{}
 	redParams.Add("response_type", "code")
 	redParams.Add("client_id", "inventory")
@@ -55,5 +59,5 @@ func (r *RestService) Login(ctx *gin.Context, params *operation.LoginRequest) {
 	redParams.Add("code_challenge", codeChallenge)
 	redParams.Add("code_challenge_method", "S256")
 
-	ctx.Redirect(http.StatusPermanentRedirect, fmt.Sprintf("http://localhost:8081/v1/api/authorization?%v", redParams.Encode()))
+	ctx.Redirect(http.StatusPermanentRedirect, fmt.Sprintf("%v%v?%v", uri, path, redParams.Encode()))
 }
