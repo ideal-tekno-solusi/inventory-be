@@ -56,8 +56,8 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 	path := viper.GetString("config.auth.path.token")
 
 	body := entity.TokenRequest{
-		Code:          message.AuthorizationCode,
-		CodeChallenge: data.CodeChallenge.String,
+		Code:         message.AuthorizationCode,
+		CodeVerifier: data.CodeVerifier.String,
 	}
 
 	var result entity.TokenResponse
