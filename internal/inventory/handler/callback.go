@@ -64,7 +64,32 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 
 	bodyString, _ := json.Marshal(body)
 
-	status, res, err := utils.SendHttpRequest("POST", fmt.Sprintf("%v%v", uri, path), bodyString)
+	csrfCtx, err := ctx.Cookie("_csrf")
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to get csrf from cookie with error: %v", err)
+		logrus.Error(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
+	sessionCtx, err := ctx.Cookie("Session-Id")
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to get session from cookie with error: %v", err)
+		logrus.Error(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
+	cookies := []*http.Cookie{
+		{Name: "_csrf", Value: csrfCtx, Path: "/"},
+		{Name: "Session-Id", Value: sessionCtx, Path: "/"},
+	}
+
+	status, res, err := utils.SendHttpPostRequest(fmt.Sprintf("%v%v", uri, path), bodyString, cookies)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to req token with error: %v", err)
 		logrus.Error(errorMessage)
@@ -82,7 +107,7 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 		return
 	}
 
-	err = json.NewDecoder(*res).Decode(&result)
+	err = json.Unmarshal(res, &result)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to decode response with error: %v", err)
 		logrus.Error(errorMessage)
@@ -91,8 +116,6 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 
 		return
 	}
-
-	//TODO: dari code challenge yg didapat diatas, query get ke db table challenge untuk ambil code verifier, lalu kirim  beserta auth code ke /token
 
 	ctx.JSON(200, result)
 }

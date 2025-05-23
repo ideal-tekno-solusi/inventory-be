@@ -17,7 +17,6 @@ import (
 )
 
 func Authorize() gin.HandlerFunc {
-	//TODO: need testing
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("Authorization")
 

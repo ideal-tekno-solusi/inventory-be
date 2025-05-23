@@ -6,10 +6,8 @@ import (
 	"net/http"
 )
 
-func SendHttpRequest(method, url string, body []byte) (int, *io.ReadCloser, error) {
-	if method == "" {
-		method = "GET"
-	}
+func SendHttpPostRequest(url string, body []byte, cookies []*http.Cookie) (int, []byte, error) {
+	method := "POST"
 
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
 	if err != nil {
@@ -17,6 +15,10 @@ func SendHttpRequest(method, url string, body []byte) (int, *io.ReadCloser, erro
 	}
 
 	req.Header.Add("Content-Type", "application/json")
+
+	for _, cookie := range cookies {
+		req.AddCookie(cookie)
+	}
 
 	client := &http.Client{}
 
@@ -28,5 +30,10 @@ func SendHttpRequest(method, url string, body []byte) (int, *io.ReadCloser, erro
 	//TODO: keknya bakal perlu penjagaan lebih deh ini
 	defer res.Body.Close()
 
-	return res.StatusCode, &res.Body, nil
+	resBody, err := io.ReadAll(*&res.Body)
+	if err != nil {
+		return http.StatusInternalServerError, nil, err
+	}
+
+	return res.StatusCode, resBody, nil
 }
