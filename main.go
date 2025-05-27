@@ -21,6 +21,12 @@ import (
 )
 
 func main() {
+	env := viper.GetString("config.env")
+
+	if env == "prod" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	r := gin.Default()
 	// TODO: cek lagi CORS ini
 	r.Use(cors.New(cors.Config{

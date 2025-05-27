@@ -3,6 +3,7 @@ services:
   port: 8051
 
 config:
+  env: prod
   csrf:
     secret: kNaV2rHX12L4bUuhEEXQ9plJbjtYN2P7
     age: 600 #seconds
