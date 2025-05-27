@@ -1,6 +1,6 @@
 services:
   host: localhost
-  port: 8080
+  port: 8051
 
 config:
   csrf:
@@ -13,7 +13,7 @@ config:
     domain: "localhost"
     path: "/"
   auth:
-    uri: "http://localhost:8081"
+    uri: "http://localhost:8050"
     path:
       token: "/auth/api/token"
       login: "/auth/api/login"
@@ -30,17 +30,17 @@ secret:
 database:
   read:
     driver: postgresql
-    host: localhost
+    host: 192.168.0.251
     port: 5432
     database: inventory
     schema: inventory
-    username: ryuze
+    username: inventory
     password: asd123qwe
   write:
     driver: postgresql
-    host: localhost
+    host: 192.168.0.251
     port: 5432
     database: inventory
     schema: inventory
-    username: ryuze
+    username: inventory
     password: asd123qwe

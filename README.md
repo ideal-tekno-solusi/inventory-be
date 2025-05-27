@@ -31,5 +31,5 @@ TODO:
 - [ ] implement swagger
 
 # note
-after edit query in database/postgresql/query.sql, dont forget to run
-`sqlc generate`
+- after edit query in database/postgresql/query.sql, dont forget to run `sqlc generate`
+- this project is made without minding it's securities, this project solely for POC of how fully build enterprise software works internally
