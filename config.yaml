@@ -1,20 +1,20 @@
 services:
-  host: localhost
-  port: 8051
+  host: "0.0.0.0"
+  port: 8080
 
 config:
   env: prod
   csrf:
     secret: kNaV2rHX12L4bUuhEEXQ9plJbjtYN2P7
     age: 600 #seconds
-    domain: "localhost"
+    domain: "http://192.168.0.252"
     path: "/"
   oauth:
     age: 3600 #seconds
-    domain: "localhost"
+    domain: "http://192.168.0.252"
     path: "/"
   auth:
-    uri: "http://localhost:8050"
+    uri: "http://192.168.0.252:8050"
     path:
       token: "/auth/api/token"
       login: "/auth/api/login"
