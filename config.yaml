@@ -7,11 +7,11 @@ config:
   csrf:
     secret: kNaV2rHX12L4bUuhEEXQ9plJbjtYN2P7
     age: 600 #seconds
-    domain: "https://idtecsi.my.id"
+    domain: ".idtecsi.my.id"
     path: "/"
   oauth:
     age: 3600 #seconds
-    domain: "https://idtecsi.my.id"
+    domain: ".idtecsi.my.id"
     path: "/"
   auth:
     uri: "https://sso.idtecsi.my.id"
