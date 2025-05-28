@@ -7,14 +7,14 @@ config:
   csrf:
     secret: kNaV2rHX12L4bUuhEEXQ9plJbjtYN2P7
     age: 600 #seconds
-    domain: "http://192.168.0.252"
+    domain: "https://idtecsi.my.id"
     path: "/"
   oauth:
     age: 3600 #seconds
-    domain: "http://192.168.0.252"
+    domain: "https://idtecsi.my.id"
     path: "/"
   auth:
-    uri: "http://192.168.0.252:8050"
+    uri: "https://sso.idtecsi.my.id"
     path:
       token: "/auth/api/token"
       login: "/auth/api/login"
