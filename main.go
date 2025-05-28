@@ -21,6 +21,7 @@ import (
 )
 
 func main() {
+	cfg := bootstrap.InitContainer()
 	env := viper.GetString("config.env")
 
 	if env == "prod" {
@@ -37,8 +38,6 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-
-	cfg := bootstrap.InitContainer()
 
 	csrfSecret := viper.GetString("config.csrf.secret")
 	csrfDomain := viper.GetString("config.csrf.domain")
