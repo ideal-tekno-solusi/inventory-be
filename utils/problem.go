@@ -71,6 +71,12 @@ func normalizeError(err validator.FieldError) string {
 		return fmt.Sprintf("%v is required", strings.Split(err.Namespace(), ".")[1])
 	case "max":
 		return fmt.Sprintf("%v max length is %v", strings.Split(err.Namespace(), ".")[1], err.Param())
+	case "gt":
+		return fmt.Sprintf("%v value must be greater than %v", strings.Split(err.Namespace(), ".")[1], err.Param())
+	case "gte":
+		return fmt.Sprintf("%v value must be greater or equal than %v", strings.Split(err.Namespace(), ".")[1], err.Param())
+	case "lte":
+		return fmt.Sprintf("%v value must be lower or equal than %v", strings.Split(err.Namespace(), ".")[1], err.Param())
 	default:
 		return "undefined error"
 	}

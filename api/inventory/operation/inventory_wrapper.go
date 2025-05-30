@@ -5,14 +5,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
 type InventoryRequest struct {
 	Category string `form:"category"`
 	BranchId string `form:"branchId"`
-	Page     int    `form:"page"`
-	Limit    int    `form:"limit"`
+	Page     int    `form:"page" binding:"gt=0"`
+	Limit    int    `form:"limit" binding:"gte=10,lte=50"`
 }
 
 func InventoryWrapper(handler func(ctx *gin.Context, params *InventoryRequest)) gin.HandlerFunc {
@@ -21,27 +22,13 @@ func InventoryWrapper(handler func(ctx *gin.Context, params *InventoryRequest)) 
 
 		err := ctx.ShouldBind(&params)
 		if err != nil {
-			utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, err.Error(), ctx.FullPath(), uuid.NewString())
+			utils.SendProblemDetailJsonValidate(ctx, http.StatusInternalServerError, "validation error", ctx.FullPath(), uuid.NewString(), err.(validator.ValidationErrors))
 
 			return
 		}
-
-		params = defaultValueInventory(params)
 
 		handler(ctx, &params)
 
 		ctx.Next()
 	}
-}
-
-func defaultValueInventory(params InventoryRequest) InventoryRequest {
-	if params.Page <= 0 {
-		params.Page = 1
-	}
-
-	if params.Limit <= 10 {
-		params.Limit = 10
-	}
-
-	return params
 }

@@ -5,13 +5,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
 type CategoryRequest struct {
 	Name  string `form:"name"`
-	Page  int    `form:"page"`
-	Limit int    `form:"limit"`
+	Page  int    `form:"page" binding:"gt=0"`
+	Limit int    `form:"limit" binding:"gte=10,lte=50"`
 }
 
 func CategoryWrapper(handler func(ctx *gin.Context, params *CategoryRequest)) gin.HandlerFunc {
@@ -20,27 +21,13 @@ func CategoryWrapper(handler func(ctx *gin.Context, params *CategoryRequest)) gi
 
 		err := ctx.ShouldBind(&params)
 		if err != nil {
-			utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, err.Error(), ctx.FullPath(), uuid.NewString())
+			utils.SendProblemDetailJsonValidate(ctx, http.StatusInternalServerError, "validation error", ctx.FullPath(), uuid.NewString(), err.(validator.ValidationErrors))
 
 			return
 		}
-
-		params = defaultValueCategory(params)
 
 		handler(ctx, &params)
 
 		ctx.Next()
 	}
-}
-
-func defaultValueCategory(params CategoryRequest) CategoryRequest {
-	if params.Page <= 0 {
-		params.Page = 1
-	}
-
-	if params.Limit <= 10 {
-		params.Limit = 10
-	}
-
-	return params
 }

@@ -13,7 +13,8 @@ TODO:
 - [x] create generate code challenge for oauth 2.0 flow https://datatracker.ietf.org/doc/html/rfc7636#section-4.2
 - [x] update flow login for oauth pkce https://youtu.be/nyjEDSGwN1o?si=i2QxWTFoxYzjbZT9
 - [x] create endpoint callback to req token
-- [ ] update validator to using validate playground
+- [x] update validator to using validate playground
+- [ ] create middleware to validate auth token
 - [ ] create working endpoint to login (redirect to sso)
 - [ ] create working endpoint to show location
 - [ ] create working endpoint to insert location
