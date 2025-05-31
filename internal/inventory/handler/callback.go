@@ -20,6 +20,7 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 	callbackService := repository.CallbackRepository(repo)
 
 	message := entity.CodeMessage{}
+	result := entity.TokenResponse{}
 
 	text, err := utils.DecryptJwe(params.Code)
 	if err != nil {
@@ -60,36 +61,9 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 		CodeVerifier: data.CodeVerifier.String,
 	}
 
-	var result entity.TokenResponse
-
 	bodyString, _ := json.Marshal(body)
 
-	csrfCtx, err := ctx.Cookie("_csrf")
-	if err != nil {
-		errorMessage := fmt.Sprintf("failed to get csrf from cookie with error: %v", err)
-		logrus.Error(errorMessage)
-
-		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
-
-		return
-	}
-
-	sessionCtx, err := ctx.Cookie("Session-Id")
-	if err != nil {
-		errorMessage := fmt.Sprintf("failed to get session from cookie with error: %v", err)
-		logrus.Error(errorMessage)
-
-		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
-
-		return
-	}
-
-	cookies := []*http.Cookie{
-		{Name: "_csrf", Value: csrfCtx, Path: "/"},
-		{Name: "Session-Id", Value: sessionCtx, Path: "/"},
-	}
-
-	status, res, err := utils.SendHttpPostRequest(fmt.Sprintf("%v%v", uri, path), bodyString, cookies)
+	status, res, err := utils.SendHttpPostRequest(fmt.Sprintf("%v%v", uri, path), bodyString, nil)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to req token with error: %v", err)
 		logrus.Error(errorMessage)
@@ -117,5 +91,16 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 		return
 	}
 
-	ctx.JSON(200, result)
+	//? clean up
+	err = callbackService.DeleteChallenge(ctx, message.CodeChallenge)
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to delete challenge with error: %v", err)
+		logrus.Error(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, result)
 }

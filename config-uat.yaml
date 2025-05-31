@@ -9,16 +9,15 @@ config:
     age: 600 #seconds
     domain: "localhost"
     path: "/"
-  oauth:
-    age: 3600 #seconds
-    domain: "localhost"
-    path: "/"
   auth:
     uri: "http://localhost:8080"
     path:
       token: "/auth/api/token"
       login: "/auth/api/login"
-      auth: "/auth/api/authorization"
+      auth: "/auth/api/authorize"
+  url:
+    redirect_fe:
+      login: "http://localhost:8021/login"
 
 secret:
   sso:

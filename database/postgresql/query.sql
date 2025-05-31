@@ -149,3 +149,7 @@ from
     challenges
 where
     code_challenge = $1;
+
+-- name: DeleteChallenge :exec
+delete from challenges
+where code_challenge = $1;

@@ -17,8 +17,18 @@ import (
 	"github.com/spf13/viper"
 )
 
-func (r *RestService) Login(ctx *gin.Context, params *operation.LoginRequest) {
+func (r *RestService) RefreshToken(ctx *gin.Context, params *operation.RefreshTokenRequest) {
 	//? flow generate code verifier + code challenge here
+	refreshToken := ctx.GetHeader("refresh-token")
+	if refreshToken == "" {
+		errorMessage := "refresh token not found, please try login again"
+		logrus.Error(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusUnauthorized, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
 	codeVerifier := make([]byte, 128)
 	_, err := rand.Read(codeVerifier)
 	if err != nil {
@@ -50,17 +60,18 @@ func (r *RestService) Login(ctx *gin.Context, params *operation.LoginRequest) {
 		return
 	}
 
-	urlLogin := viper.GetString("config.url.redirect_fe.login")
+	uriAuth := viper.GetString("config.auth.uri")
+	pathAuth := viper.GetString("config.auth.path.auth")
 
-	redParams := url.Values{}
-	redParams.Add("response_type", "code")
-	redParams.Add("client_id", "inventory")
-	redParams.Add("redirect_url", params.RedirectUrl)
-	redParams.Add("scopes", "user inventory")
-	redParams.Add("state", uuid.NewString())
-	redParams.Add("code_challenge", codeChallenge)
-	redParams.Add("code_challenge_method", "S256")
+	//TODO: sementara redirect nya example aja, klo diliat mah di flow login juga ini redirect ga kepake sih
+	query := url.Values{}
+	query.Add("response_type", "refresh")
+	query.Add("client_id", "inventory")
+	query.Add("redirect_url", "http://example.com")
+	query.Add("scopes", "user inventory")
+	query.Add("state", refreshToken)
+	query.Add("code_challenge", codeChallenge)
+	query.Add("code_challenge_method", "S256")
 
-	//TODO: redirect ke frontend dengan query yg udah dibikin diatas, nanti fe ambil semua query dari redirect dan kirim ke sso /login (body dan query POST) baru ke sso /authorize
-	ctx.Redirect(http.StatusPermanentRedirect, fmt.Sprintf("%v?%v", urlLogin, redParams.Encode()))
+	ctx.Redirect(http.StatusSeeOther, fmt.Sprintf("%v%v?%v", uriAuth, pathAuth, query.Encode()))
 }

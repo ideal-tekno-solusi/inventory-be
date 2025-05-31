@@ -9,13 +9,11 @@ import (
 	"github.com/google/uuid"
 )
 
-type LoginRequest struct {
-	RedirectUrl string `form:"redirect-url"`
-}
+type RefreshTokenRequest struct{}
 
-func LoginWrapper(handler func(ctx *gin.Context, params *LoginRequest)) gin.HandlerFunc {
+func RefreshTokenWrapper(handler func(ctx *gin.Context, params *RefreshTokenRequest)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		params := LoginRequest{}
+		params := RefreshTokenRequest{}
 
 		err := ctx.ShouldBind(&params)
 		if err != nil {

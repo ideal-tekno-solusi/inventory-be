@@ -19,6 +19,7 @@ services:
   #   ports:
   #     - "5432:5432"
   app:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile

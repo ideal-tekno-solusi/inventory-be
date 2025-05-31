@@ -9,16 +9,15 @@ config:
     age: 600 #seconds
     domain: ".idtecsi.my.id"
     path: "/"
-  oauth:
-    age: 3600 #seconds
-    domain: ".idtecsi.my.id"
-    path: "/"
   auth:
     uri: "https://sso.idtecsi.my.id"
     path:
       token: "/auth/api/token"
       login: "/auth/api/login"
-      auth: "/auth/api/authorization"
+      auth: "/auth/api/authorize"
+  url:
+    redirect_fe:
+      login: "https://inventory.idtecsi.my.id/login"
 
 secret:
   sso:

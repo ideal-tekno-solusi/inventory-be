@@ -9,6 +9,7 @@ import (
 
 type Callback interface {
 	GetChallenge(ctx context.Context, codeChallenge string) (*database.Challenge, error)
+	DeleteChallenge(ctx context.Context, codeChallenge string) error
 }
 
 type CallbackService struct {
@@ -33,4 +34,18 @@ func (r *Repository) GetChallenge(ctx context.Context, codeChallenge string) (*d
 	}
 
 	return &data, nil
+}
+
+func (r *Repository) DeleteChallenge(ctx context.Context, codeChallenge string) error {
+	args := pgtype.Text{
+		String: codeChallenge,
+		Valid:  true,
+	}
+
+	err := r.write.DeleteChallenge(ctx, args)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
