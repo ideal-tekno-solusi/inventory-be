@@ -2,10 +2,8 @@ package inventory
 
 import (
 	"app/api/inventory/operation"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 func Router(r *gin.Engine, s Service) {
@@ -18,16 +16,4 @@ func Router(r *gin.Engine, s Service) {
 	v1.GET("/api/login", operation.LoginWrapper(s.Login))
 	v1.GET("/api/callback", operation.CallbackWrapper(s.Callback))
 	v1.GET("/api/token/refresh", operation.RefreshTokenWrapper(s.RefreshToken))
-
-	test := r.Group("/test")
-	test.GET("/redirect", func(ctx *gin.Context) {
-		cookie, err := ctx.Cookie("verifier")
-		if err != nil {
-			panic(err)
-		}
-
-		logrus.Info(cookie)
-
-		ctx.JSON(http.StatusOK, nil)
-	})
 }
