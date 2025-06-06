@@ -96,34 +96,6 @@ func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) 
 	return err
 }
 
-const createChallenge = `-- name: CreateChallenge :exec
-insert into challenges
-(
-    code_verifier,
-    code_challenge,
-    code_challenge_method,
-    insert_date
-)
-values
-(
-    $1,
-    $2,
-    $3,
-    now()
-)
-`
-
-type CreateChallengeParams struct {
-	CodeVerifier        pgtype.Text
-	CodeChallenge       pgtype.Text
-	CodeChallengeMethod pgtype.Text
-}
-
-func (q *Queries) CreateChallenge(ctx context.Context, arg CreateChallengeParams) error {
-	_, err := q.db.Exec(ctx, createChallenge, arg.CodeVerifier, arg.CodeChallenge, arg.CodeChallengeMethod)
-	return err
-}
-
 const deleteCategory = `-- name: DeleteCategory :exec
 update categories
 set
@@ -139,16 +111,6 @@ type DeleteCategoryParams struct {
 
 func (q *Queries) DeleteCategory(ctx context.Context, arg DeleteCategoryParams) error {
 	_, err := q.db.Exec(ctx, deleteCategory, arg.DeleteDate, arg.ID)
-	return err
-}
-
-const deleteChallenge = `-- name: DeleteChallenge :exec
-delete from challenges
-where code_challenge = $1
-`
-
-func (q *Queries) DeleteChallenge(ctx context.Context, codeChallenge pgtype.Text) error {
-	_, err := q.db.Exec(ctx, deleteChallenge, codeChallenge)
 	return err
 }
 
@@ -297,30 +259,6 @@ func (q *Queries) FetchInventoryItems(ctx context.Context, arg FetchInventoryIte
 		return nil, err
 	}
 	return items, nil
-}
-
-const getChallenge = `-- name: GetChallenge :one
-select
-    code_verifier,
-    code_challenge,
-    code_challenge_method,
-    insert_date
-from
-    challenges
-where
-    code_challenge = $1
-`
-
-func (q *Queries) GetChallenge(ctx context.Context, codeChallenge pgtype.Text) (Challenge, error) {
-	row := q.db.QueryRow(ctx, getChallenge, codeChallenge)
-	var i Challenge
-	err := row.Scan(
-		&i.CodeVerifier,
-		&i.CodeChallenge,
-		&i.CodeChallengeMethod,
-		&i.InsertDate,
-	)
-	return i, err
 }
 
 const updateCategory = `-- name: UpdateCategory :exec

@@ -38,13 +38,6 @@ type Category struct {
 	DeleteDate  pgtype.Timestamp
 }
 
-type Challenge struct {
-	CodeVerifier        pgtype.Text
-	CodeChallenge       pgtype.Text
-	CodeChallengeMethod pgtype.Text
-	InsertDate          pgtype.Timestamp
-}
-
 type Item struct {
 	ID         string
 	CategoryID pgtype.Text

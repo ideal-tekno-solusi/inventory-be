@@ -18,6 +18,12 @@ config:
   url:
     redirect_fe:
       login: "http://localhost:8021/login"
+  verifier:
+    age: 300 #seconds
+    domain: "localhost"
+    path: "/"
+    secure: false
+    httponly: true
 
 secret:
   sso:

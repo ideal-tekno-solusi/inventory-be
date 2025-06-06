@@ -3,7 +3,6 @@ package handler
 import (
 	"app/api/inventory/operation"
 	"app/internal/inventory/entity"
-	"app/internal/inventory/repository"
 	"app/utils"
 	"encoding/json"
 	"fmt"
@@ -16,8 +15,10 @@ import (
 )
 
 func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackRequest) {
-	repo := repository.InitRepo(r.dbr, r.dbw)
-	callbackService := repository.CallbackRepository(repo)
+	verifierDomain := viper.GetString("config.verifier.domain")
+	verifierPath := viper.GetString("config.verifier.path")
+	verifierSecure := viper.GetBool("config.verifier.secure")
+	verifierHttponly := viper.GetBool("config.verifier.httponly")
 
 	message := entity.CodeMessage{}
 	result := entity.TokenResponse{}
@@ -42,12 +43,12 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 		return
 	}
 
-	data, err := callbackService.GetChallenge(ctx, message.CodeChallenge)
-	if err != nil {
-		errorMessage := fmt.Sprintf("failed to get challenge with error: %v", err)
-		logrus.Error(errorMessage)
+	codeVerifier, err := ctx.Cookie("verifier")
+	if err != nil || codeVerifier == "" {
+		errorMessage := "code verifier not found, please try to login again"
+		logrus.Warn(errorMessage)
 
-		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+		utils.SendProblemDetailJson(ctx, http.StatusUnauthorized, errorMessage, ctx.FullPath(), uuid.NewString())
 
 		return
 	}
@@ -58,7 +59,7 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 
 	body := entity.TokenRequest{
 		Code:         message.AuthorizationCode,
-		CodeVerifier: data.CodeVerifier.String,
+		CodeVerifier: codeVerifier,
 	}
 
 	bodyString, _ := json.Marshal(body)
@@ -92,15 +93,7 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 	}
 
 	//? clean up
-	err = callbackService.DeleteChallenge(ctx, message.CodeChallenge)
-	if err != nil {
-		errorMessage := fmt.Sprintf("failed to delete challenge with error: %v", err)
-		logrus.Error(errorMessage)
-
-		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
-
-		return
-	}
+	ctx.SetCookie("verifier", "", -1, verifierPath, verifierDomain, verifierSecure, verifierHttponly)
 
 	ctx.JSON(http.StatusOK, result)
 }

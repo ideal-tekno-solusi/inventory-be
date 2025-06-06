@@ -2,7 +2,6 @@ package handler
 
 import (
 	"app/api/inventory/operation"
-	"app/internal/inventory/repository"
 	"app/utils"
 	"crypto/rand"
 	"crypto/sha256"
@@ -19,6 +18,12 @@ import (
 
 func (r *RestService) RefreshToken(ctx *gin.Context, params *operation.RefreshTokenRequest) {
 	//? flow generate code verifier + code challenge here
+	verifierAge := viper.GetInt("config.verifier.age")
+	verifierDomain := viper.GetString("config.verifier.domain")
+	verifierPath := viper.GetString("config.verifier.path")
+	verifierSecure := viper.GetBool("config.verifier.secure")
+	verifierHttponly := viper.GetBool("config.verifier.httponly")
+
 	refreshToken := ctx.GetHeader("refresh-token")
 	if refreshToken == "" {
 		errorMessage := "refresh token not found, please try login again"
@@ -47,21 +52,11 @@ func (r *RestService) RefreshToken(ctx *gin.Context, params *operation.RefreshTo
 	hash.Write([]byte(codeVerifierString))
 	codeChallenge := base64.StdEncoding.EncodeToString(hash.Sum(nil))
 
-	repo := repository.InitRepo(r.dbr, r.dbw)
-	loginService := repository.LoginRepository(repo)
-
-	err = loginService.CreateChallenge(ctx, codeVerifierString, codeChallenge, "S256")
-	if err != nil {
-		errorMessage := fmt.Sprintf("failed to create new challenge with error: %v", err)
-		logrus.Warn(errorMessage)
-
-		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
-
-		return
-	}
-
 	uriAuth := viper.GetString("config.auth.uri")
 	pathAuth := viper.GetString("config.auth.path.auth")
+
+	//? set code verifier to cookie
+	ctx.SetCookie("verifier", codeVerifierString, verifierAge, verifierPath, verifierDomain, verifierSecure, verifierHttponly)
 
 	//TODO: sementara redirect nya example aja, klo diliat mah di flow login juga ini redirect ga kepake sih
 	query := url.Values{}

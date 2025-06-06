@@ -45,10 +45,3 @@ create table if not exists branch_items (
 	update_date timestamp,
 	delete_date timestamp
 );
-
-create table if not exists challenges (
-	code_verifier text,
-	code_challenge text,
-	code_challenge_method varchar(5),
-	insert_date timestamp
-);

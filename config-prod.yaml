@@ -18,6 +18,12 @@ config:
   url:
     redirect_fe:
       login: "https://inventory.idtecsi.my.id/login"
+  verifier:
+    age: 300 #seconds
+    domain: ".idtecsi.my.id"
+    path: "/"
+    secure: false
+    httponly: true
 
 secret:
   sso:
