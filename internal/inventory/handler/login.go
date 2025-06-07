@@ -49,13 +49,13 @@ func (r *RestService) Login(ctx *gin.Context, params *operation.LoginRequest) {
 	ctx.SetCookie("verifier", codeVerifierString, verifierAge, verifierPath, verifierDomain, verifierSecure, verifierHttponly)
 
 	redParams := url.Values{}
-	redParams.Add("response_type", "code")
-	redParams.Add("client_id", "inventory")
-	redParams.Add("redirect_url", params.RedirectUrl)
+	redParams.Add("responseType", "code")
+	redParams.Add("clientId", "inventory")
+	redParams.Add("redirectUrl", params.RedirectUrl)
 	redParams.Add("scopes", "user inventory")
 	redParams.Add("state", uuid.NewString())
-	redParams.Add("code_challenge", codeChallenge)
-	redParams.Add("code_challenge_method", "S256")
+	redParams.Add("codeChallenge", codeChallenge)
+	redParams.Add("codeChallengeMethod", "S256")
 
 	//TODO: redirect ke frontend dengan query yg udah dibikin diatas, nanti fe ambil semua query dari redirect dan kirim ke sso /login (body dan query POST) baru ke sso /authorize
 	ctx.Redirect(http.StatusPermanentRedirect, fmt.Sprintf("%v?%v", urlLogin, redParams.Encode()))
