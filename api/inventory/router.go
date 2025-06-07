@@ -16,4 +16,5 @@ func Router(r *gin.Engine, s Service) {
 	v1.GET("/api/login", operation.LoginWrapper(s.Login))
 	v1.GET("/api/callback", operation.CallbackWrapper(s.Callback))
 	v1.GET("/api/token/refresh", operation.RefreshTokenWrapper(s.RefreshToken))
+	v1.GET("/api/user", operation.UserWrapper(s.User))
 }

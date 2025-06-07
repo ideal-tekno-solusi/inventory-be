@@ -15,4 +15,5 @@ type Service interface {
 	Login(ctx *gin.Context, params *operation.LoginRequest)
 	Callback(ctx *gin.Context, params *operation.CallbackRequest)
 	RefreshToken(ctx *gin.Context, params *operation.RefreshTokenRequest)
+	User(ctx *gin.Context, params *operation.UserRequest)
 }
