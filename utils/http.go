@@ -30,7 +30,7 @@ func SendHttpPostRequest(url string, body []byte, cookies []*http.Cookie) (int, 
 	//TODO: keknya bakal perlu penjagaan lebih deh ini
 	defer res.Body.Close()
 
-	resBody, err := io.ReadAll(*&res.Body)
+	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		return http.StatusInternalServerError, nil, err
 	}
