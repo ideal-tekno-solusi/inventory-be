@@ -45,15 +45,18 @@ func (r *RestService) Login(ctx *gin.Context, params *operation.LoginRequest) {
 	urlLogin := viper.GetString("config.url.redirect_fe.login")
 
 	//? set code verifier to cookie
+	state := uuid.NewString()
+
 	ctx.SetSameSite(http.SameSiteNoneMode)
 	ctx.SetCookie("verifier", codeVerifierString, verifierAge, verifierPath, verifierDomain, verifierSecure, verifierHttponly)
+	ctx.SetCookie("state", state, verifierAge, verifierPath, verifierDomain, verifierSecure, verifierHttponly)
 
 	redParams := url.Values{}
 	redParams.Add("responseType", "code")
 	redParams.Add("clientId", "inventory")
 	redParams.Add("redirectUrl", params.RedirectUrl)
 	redParams.Add("scopes", "user inventory")
-	redParams.Add("state", uuid.NewString())
+	redParams.Add("state", state)
 	redParams.Add("codeChallenge", codeChallenge)
 	redParams.Add("codeChallengeMethod", "S256")
 

@@ -10,7 +10,8 @@ import (
 )
 
 type CallbackRequest struct {
-	Code string `form:"code" binding:"required"`
+	Code  string `form:"code" binding:"required"`
+	State string `form:"state" binding:"required"`
 }
 
 func CallbackWrapper(handler func(ctx *gin.Context, params *CallbackRequest)) gin.HandlerFunc {
@@ -24,8 +25,27 @@ func CallbackWrapper(handler func(ctx *gin.Context, params *CallbackRequest)) gi
 			return
 		}
 
+		if verifyState(ctx, params) {
+			utils.SendProblemDetailJson(ctx, http.StatusUnauthorized, "state not found or invalid, please try login again", ctx.FullPath(), uuid.NewString())
+
+			return
+		}
+
 		handler(ctx, &params)
 
 		ctx.Next()
 	}
+}
+
+func verifyState(ctx *gin.Context, params CallbackRequest) bool {
+	state, err := ctx.Cookie("verifier")
+	if err != nil || state == "" {
+		return false
+	}
+
+	if params.State != state {
+		return false
+	}
+
+	return true
 }

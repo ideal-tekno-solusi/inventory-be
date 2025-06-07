@@ -20,28 +20,7 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 	verifierSecure := viper.GetBool("config.verifier.secure")
 	verifierHttponly := viper.GetBool("config.verifier.httponly")
 
-	message := entity.CodeMessage{}
 	result := entity.TokenResponse{}
-
-	text, err := utils.DecryptJwe(params.Code)
-	if err != nil {
-		errorMessage := fmt.Sprintf("failed to decrypt message with error: %v", err)
-		logrus.Error(errorMessage)
-
-		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
-
-		return
-	}
-
-	err = json.Unmarshal([]byte(*text), &message)
-	if err != nil {
-		errorMessage := fmt.Sprintf("failed to unmarshal message with error: %v", err)
-		logrus.Error(errorMessage)
-
-		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
-
-		return
-	}
 
 	codeVerifier, err := ctx.Cookie("verifier")
 	if err != nil || codeVerifier == "" {
@@ -58,7 +37,7 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 	path := viper.GetString("config.auth.path.token")
 
 	body := entity.TokenRequest{
-		Code:         message.AuthorizationCode,
+		Code:         params.Code,
 		CodeVerifier: codeVerifier,
 	}
 
