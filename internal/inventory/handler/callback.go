@@ -53,7 +53,7 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 		return
 	}
 	if status != http.StatusOK {
-		errorMessage := fmt.Sprintf("response from server is not ok, status %v", status)
+		errorMessage := fmt.Sprintf("response from server is not ok, response server: %v", string(res))
 		logrus.Error(errorMessage)
 
 		utils.SendProblemDetailJson(ctx, status, errorMessage, ctx.FullPath(), uuid.NewString())
@@ -61,7 +61,17 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 		return
 	}
 
-	err = json.Unmarshal(res, &result)
+	reqDefaultRes, reqBodyRes, err := utils.BindResponse(res)
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to bind response with error: %v", err)
+		logrus.Error(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
+	err = json.Unmarshal(*reqBodyRes, &result)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to decode response with error: %v", err)
 		logrus.Error(errorMessage)
@@ -71,8 +81,19 @@ func (r *RestService) Callback(ctx *gin.Context, params *operation.CallbackReque
 		return
 	}
 
+	//? set refresh token cookie
+	refreshTokenAge := viper.GetInt("config.refreshToken.age")
+	refreshTokenDomain := viper.GetString("config.refreshToken.domain")
+	refreshTokenPath := viper.GetString("config.refreshToken.path")
+	refreshTokenSecure := viper.GetBool("config.refreshToken.secure")
+	refreshTokenHttponly := viper.GetBool("config.refreshToken.httponly")
+
+	ctx.SetSameSite(http.SameSiteNoneMode)
+	ctx.SetCookie("refreshToken", result.RefreshToken, refreshTokenAge, refreshTokenPath, refreshTokenDomain, refreshTokenSecure, refreshTokenHttponly)
+
 	//? clean up
 	ctx.SetCookie("verifier", "", -1, verifierPath, verifierDomain, verifierSecure, verifierHttponly)
+	ctx.SetCookie("state", "", -1, verifierPath, verifierDomain, verifierSecure, verifierHttponly)
 
-	ctx.JSON(http.StatusOK, result)
+	ctx.JSON(http.StatusOK, utils.GenerateResponseJson(reqDefaultRes, true, result))
 }

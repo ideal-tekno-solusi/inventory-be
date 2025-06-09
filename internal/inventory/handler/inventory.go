@@ -46,5 +46,5 @@ func (r *RestService) Inventory(ctx *gin.Context, params *operation.InventoryReq
 		Items:       items,
 	}
 
-	ctx.JSON(http.StatusOK, utils.GenerateResponseJson(true, res))
+	ctx.JSON(http.StatusOK, utils.GenerateResponseJson(nil, true, res))
 }

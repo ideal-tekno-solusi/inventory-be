@@ -9,7 +9,9 @@ import (
 	"github.com/google/uuid"
 )
 
-type RefreshTokenRequest struct{}
+type RefreshTokenRequest struct {
+	RedirectUrl string `form:"redirectUrl"`
+}
 
 func RefreshTokenWrapper(handler func(ctx *gin.Context, params *RefreshTokenRequest)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {

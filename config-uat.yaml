@@ -16,10 +16,19 @@ config:
       login: "/auth/api/login"
       auth: "/auth/api/authorize"
   url:
-    redirect_fe:
+    redirectFe:
       login: "http://localhost:8021/login"
+    default:
+      home: "http://localhost:8022/"
+      callbackUrl: "http://localhost:8081/v1/api/callback"
   verifier:
     age: 300 #seconds
+    domain: "localhost"
+    path: "/"
+    secure: false
+    httponly: true
+  refreshToken:
+    age: 172800 #seconds
     domain: "localhost"
     path: "/"
     secure: false
