@@ -42,7 +42,7 @@ func (r *RestService) Login(ctx *gin.Context, params *operation.LoginRequest) {
 	hash.Write([]byte(codeVerifierString))
 	codeChallenge := base64.StdEncoding.EncodeToString(hash.Sum(nil))
 
-	urlLogin := viper.GetString("config.url.redirect_fe.login")
+	urlLogin := viper.GetString("config.url.redirectFe.login")
 
 	//? set code verifier to cookie
 	state := uuid.NewString()

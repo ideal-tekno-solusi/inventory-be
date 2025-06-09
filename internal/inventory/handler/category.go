@@ -46,7 +46,7 @@ func (r *RestService) Category(ctx *gin.Context, params *operation.CategoryReque
 		Categories:  categories,
 	}
 
-	ctx.JSON(http.StatusOK, utils.GenerateResponseJson(true, res))
+	ctx.JSON(http.StatusOK, utils.GenerateResponseJson(nil, true, res))
 }
 
 func (r *RestService) CategoryCreate(ctx *gin.Context, params *operation.CategoryCreateRequest) {

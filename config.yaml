@@ -16,13 +16,22 @@ config:
       login: "/auth/api/login"
       auth: "/auth/api/authorize"
   url:
-    redirect_fe:
-      login: "https://inventory.idtecsi.my.id/login"
+    redirectFe:
+      login: "https://sso.idtecsi.my.id/login"
+    default:
+      home: "https://inventory.idtecsi.my.id" # ganti ke fe
+      callbackUrl: "https://inventory.idtecsi.my.id/v1/api/callback"
   verifier:
     age: 300 #seconds
     domain: ".idtecsi.my.id"
     path: "/"
     secure: true
+    httponly: true
+  refreshToken:
+    age: 172800 #seconds
+    domain: ".idtecsi.my.id"
+    path: "/"
+    secure: false
     httponly: true
 
 secret:

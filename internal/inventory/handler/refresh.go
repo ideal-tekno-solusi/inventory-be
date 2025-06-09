@@ -2,10 +2,12 @@ package handler
 
 import (
 	"app/api/inventory/operation"
+	"app/internal/inventory/entity"
 	"app/utils"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -23,9 +25,16 @@ func (r *RestService) RefreshToken(ctx *gin.Context, params *operation.RefreshTo
 	verifierPath := viper.GetString("config.verifier.path")
 	verifierSecure := viper.GetBool("config.verifier.secure")
 	verifierHttponly := viper.GetBool("config.verifier.httponly")
+	redirectUrl := viper.GetString("config.url.default.home")
+	authorizeRes := entity.AuthorizeResponse{}
+	response := entity.RefreshResponse{}
 
-	refreshToken := ctx.GetHeader("refresh-token")
-	if refreshToken == "" {
+	if params.RedirectUrl != "" {
+		redirectUrl = params.RedirectUrl
+	}
+
+	refreshToken, err := ctx.Cookie("refreshToken")
+	if err != nil {
 		errorMessage := "refresh token not found, please try login again"
 		logrus.Error(errorMessage)
 
@@ -35,7 +44,7 @@ func (r *RestService) RefreshToken(ctx *gin.Context, params *operation.RefreshTo
 	}
 
 	codeVerifier := make([]byte, 128)
-	_, err := rand.Read(codeVerifier)
+	_, err = rand.Read(codeVerifier)
 	if err != nil {
 		errorMessage := fmt.Sprintf("failed to generate code verifier with error: %v", err)
 		logrus.Error(errorMessage)
@@ -58,15 +67,60 @@ func (r *RestService) RefreshToken(ctx *gin.Context, params *operation.RefreshTo
 	//? set code verifier to cookie
 	ctx.SetCookie("verifier", codeVerifierString, verifierAge, verifierPath, verifierDomain, verifierSecure, verifierHttponly)
 
-	//TODO: sementara redirect nya example aja, klo diliat mah di flow login juga ini redirect ga kepake sih
 	query := url.Values{}
-	query.Add("response_type", "refresh")
-	query.Add("client_id", "inventory")
-	query.Add("redirect_url", "http://example.com")
+	query.Add("responseType", "refresh")
+	query.Add("clientId", "inventory")
+	query.Add("redirectUrl", redirectUrl)
 	query.Add("scopes", "user inventory")
 	query.Add("state", refreshToken)
-	query.Add("code_challenge", codeChallenge)
-	query.Add("code_challenge_method", "S256")
+	query.Add("codeChallenge", codeChallenge)
+	query.Add("codeChallengeMethod", "S256")
 
-	ctx.Redirect(http.StatusSeeOther, fmt.Sprintf("%v%v?%v", uriAuth, pathAuth, query.Encode()))
+	//? call authorize
+	status, res, err := utils.SendHttpGetRequest(fmt.Sprintf("%v%v", uriAuth, pathAuth), &query, nil)
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to request authorize with error: %v", err)
+		logrus.Error(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+	if status != http.StatusOK {
+		errorMessage := fmt.Sprintf("response from server is not ok, response server: %v", string(res))
+		logrus.Error(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, status, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
+	reqDefaultRes, reqBodyRes, err := utils.BindResponse(res)
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to bind response with error: %v", err)
+		logrus.Error(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
+	err = json.Unmarshal(*reqBodyRes, &authorizeRes)
+	if err != nil {
+		errorMessage := fmt.Sprintf("failed to decode response with error: %v", err)
+		logrus.Error(errorMessage)
+
+		utils.SendProblemDetailJson(ctx, http.StatusInternalServerError, errorMessage, ctx.FullPath(), uuid.NewString())
+
+		return
+	}
+
+	callbackUrl := viper.GetString("config.url.default.callbackUrl")
+	redParams := url.Values{}
+	redParams.Add("code", authorizeRes.AuthorizeCode)
+	redParams.Add("state", refreshToken)
+
+	response.CallbackUrl = fmt.Sprintf("%v?%v", callbackUrl, redParams.Encode())
+
+	ctx.JSON(http.StatusOK, utils.GenerateResponseJson(reqDefaultRes, true, response))
 }
