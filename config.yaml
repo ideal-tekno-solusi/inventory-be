@@ -1,35 +1,35 @@
 services:
   host: "0.0.0.0"
-  port: 8080
+  port: 8081
 
 config:
-  env: prod
+  env: uat
   csrf:
     secret: kNaV2rHX12L4bUuhEEXQ9plJbjtYN2P7
     age: 600 #seconds
-    domain: ".idtecsi.my.id"
+    domain: "localhost"
     path: "/"
   auth:
-    uri: "https://sso.idtecsi.my.id"
+    uri: "http://localhost:8080"
     path:
       token: "/auth/api/token"
       login: "/auth/api/login"
       auth: "/auth/api/authorize"
   url:
     redirectFe:
-      login: "https://sso.idtecsi.my.id/login"
+      login: "http://localhost:8021/login"
     default:
-      home: "https://inventory.idtecsi.my.id" # ganti ke fe
-      callbackUrl: "https://inventory.idtecsi.my.id/v1/api/callback"
+      home: "http://localhost:8022/"
+      callbackUrl: "http://localhost:8081/v1/api/callback"
   verifier:
     age: 300 #seconds
-    domain: ".idtecsi.my.id"
+    domain: "localhost"
     path: "/"
-    secure: true
+    secure: false
     httponly: true
   refreshToken:
     age: 172800 #seconds
-    domain: ".idtecsi.my.id"
+    domain: "localhost"
     path: "/"
     secure: false
     httponly: true

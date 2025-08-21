@@ -1,4 +1,14 @@
-create schema if not exists inventory;
+-- run from root access
+create user inventory with password 'asd123qwe';
+
+create database inventory;
+
+--connect to db inventory first
+create schema if not exists inventory authorization inventory;
+
+grant all on all tables in schema inventory to inventory;
+-- end
+
 
 create sequence inventory.categories_id_seq
 increment 1
