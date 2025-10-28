@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +40,8 @@ public class PostgresDatabaseService implements DatabaseService {
     private static Connection dbw;
     private static Connection dbr;
 
+    private static final Logger log = LoggerFactory.getLogger(PostgresDatabaseService.class);
+
     @Override
     public Connection getDbw() {
         if (dbw == null) {
@@ -51,10 +55,12 @@ public class PostgresDatabaseService implements DatabaseService {
 
                 Connection conn = DriverManager.getConnection(dsn, props);
 
+                log.info("success connect to dbw");
+
                 dbw = conn;
             } catch (Exception ex) {
                 ex.printStackTrace();
-                System.out.println(String.format("failed to connect to db with error: %s", ex.getMessage()));
+                log.error("failed to connect to db with error: ", ex);
                 System.exit(0);
             }
         }
@@ -75,10 +81,12 @@ public class PostgresDatabaseService implements DatabaseService {
 
                 Connection conn = DriverManager.getConnection(dsn, props);
 
+                log.info("success connect to dbr");
+
                 dbr = conn;
             } catch (Exception ex) {
                 ex.printStackTrace();
-                System.out.println(String.format("failed to connect to db with error: %s", ex.getMessage()));
+                log.error("failed to connect to db with error: ", ex);
                 System.exit(0);
             }
         }
@@ -91,15 +99,15 @@ public class PostgresDatabaseService implements DatabaseService {
         try {
             if (dbr != null) {
                 dbr.close();
-                System.out.println("success close dbr");
+                log.info("success close dbr");
             }
 
             if (dbw != null) {
                 dbw.close();
-                System.out.println("success close dbw");
+                log.info("success close dbw");
             }
         } catch (Exception ex) {
-            System.out.println("failed to close connection");
+            log.error("failed to close connection with error: ", ex);
         }
     }
 }
