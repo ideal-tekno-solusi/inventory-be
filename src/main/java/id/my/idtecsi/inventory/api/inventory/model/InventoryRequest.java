@@ -1,8 +1,8 @@
-package id.my.idtecsi.inventory.api.inventory.entity;
+package id.my.idtecsi.inventory.api.inventory.model;
 
 import jakarta.validation.constraints.Max;
 
-public class DomainInventoryRequest {
+public class InventoryRequest {
     private String category;
     private String branchId;
     private int page;

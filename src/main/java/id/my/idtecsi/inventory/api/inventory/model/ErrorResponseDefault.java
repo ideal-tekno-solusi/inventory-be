@@ -1,9 +1,9 @@
-package id.my.idtecsi.inventory.api.inventory.entity;
+package id.my.idtecsi.inventory.api.inventory.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DomainErrorResponseDefault<T> {
+public class ErrorResponseDefault<T> {
     private String type;
     private String title;
     private int status;

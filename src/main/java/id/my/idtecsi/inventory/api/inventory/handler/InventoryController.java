@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import id.my.idtecsi.inventory.api.inventory.bootstrap.DatabaseService;
-import id.my.idtecsi.inventory.api.inventory.entity.*;
+import id.my.idtecsi.inventory.api.inventory.model.*;
 import jakarta.validation.Valid;
 
 @RestController
@@ -30,7 +31,7 @@ public class InventoryController {
     }
 
     @GetMapping("/inventory")
-    public ResponseEntity<DomainInventoryResponse> Inventory(@Valid @ModelAttribute DomainInventoryRequest req) {
+    public ResponseEntity<InventoryResponse> Inventory(@Valid @ModelAttribute InventoryRequest req) {
         // TODO:lanjutin buat logic dari verifikasi req sampe return disini
         try {
             Connection dbr = this.dbr.getDb();
@@ -39,8 +40,7 @@ public class InventoryController {
             log.info("dbr is closed: {}", dbr.isClosed());
             log.info("dbw is closed: {}", dbw.isClosed());
         } catch (Exception ex) {
-            ex.printStackTrace();
-            log.error("error on inventory handler with error: ", ex);
+            throw new ResponseStatusException(500, ex.getMessage(), ex);
         }
 
         return new ResponseEntity<>(null, HttpStatus.OK);
