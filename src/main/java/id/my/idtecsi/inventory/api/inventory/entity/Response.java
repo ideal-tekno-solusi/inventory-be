@@ -1,6 +1,10 @@
 package id.my.idtecsi.inventory.api.inventory.entity;
 
-public class Response {
-    private String guid;
+import java.time.LocalDateTime;
 
+public class Response<T> {
+    private String guid;
+    private LocalDateTime timestamp;
+    private boolean isSuccess;
+    private T data;
 }

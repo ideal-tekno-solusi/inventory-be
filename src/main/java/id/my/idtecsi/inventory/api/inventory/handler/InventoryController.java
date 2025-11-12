@@ -5,14 +5,19 @@ import java.sql.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import id.my.idtecsi.inventory.api.inventory.bootstrap.DatabaseService;
+import id.my.idtecsi.inventory.api.inventory.entity.*;
+import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/api/v1")
 public class InventoryController {
     private DatabaseService dbr;
     private DatabaseService dbw;
@@ -25,7 +30,7 @@ public class InventoryController {
     }
 
     @GetMapping("/inventory")
-    public void Inventory() {
+    public ResponseEntity<DomainInventoryResponse> Inventory(@Valid @ModelAttribute DomainInventoryRequest req) {
         // TODO:lanjutin buat logic dari verifikasi req sampe return disini
         try {
             Connection dbr = this.dbr.getDb();
@@ -37,5 +42,7 @@ public class InventoryController {
             ex.printStackTrace();
             log.error("error on inventory handler with error: ", ex);
         }
+
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }
