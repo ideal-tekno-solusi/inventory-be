@@ -1,6 +1,6 @@
 package id.my.idtecsi.inventory.api.inventory.handler;
 
-import java.sql.Connection;
+import java.sql.SQLException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import id.my.idtecsi.inventory.api.inventory.bootstrap.DatabaseService;
+import id.my.idtecsi.inventory.api.inventory.entity.PageInformation;
 import id.my.idtecsi.inventory.api.inventory.model.*;
+import id.my.idtecsi.inventory.api.inventory.repository.InventoryRepository;
 import jakarta.validation.Valid;
 
 @RestController
@@ -31,17 +32,15 @@ public class InventoryController {
     }
 
     @GetMapping("/inventory")
-    public ResponseEntity<InventoryResponse> Inventory(@Valid @ModelAttribute InventoryRequest req) {
+    public ResponseEntity<InventoryResponse> Inventory(@Valid @ModelAttribute InventoryRequest req)
+            throws SQLException {
         // TODO:lanjutin buat logic dari verifikasi req sampe return disini
-        try {
-            Connection dbr = this.dbr.getDb();
-            Connection dbw = this.dbw.getDb();
+        InventoryRepository inventoryRepository = new InventoryRepository(dbr, dbw);
 
-            log.info("dbr is closed: {}", dbr.isClosed());
-            log.info("dbw is closed: {}", dbw.isClosed());
-        } catch (Exception ex) {
-            throw new ResponseStatusException(500, ex.getMessage(), ex);
-        }
+        PageInformation pageInfo = inventoryRepository.getInventoryPageInformation(req.getCategoryId(),
+                req.getBranchId(), req.getLimit());
+
+        // TODO: lanjut untuk query fetch data inventorynya
 
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
